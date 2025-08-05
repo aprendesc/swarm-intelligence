@@ -1,10 +1,3 @@
-# !pip install --no-deps bitsandbytes==0.46.1 accelerate==1.5.2 xformers==0.0.29.post3 peft=0.16.0 trl==0.19.1 triton==3.3.0 cut_cross_entropy==25.1.1 unsloth_zoo flash-attn==0.2.4
-# !pip install sentencepiece protobuf "datasets>=3.4.1,<4.0.0" huggingface_hub hf_transfer
-# !pip install --no-deps unsloth
-# !pip install dotenv
-# !pip install telebot
-# !pip install git+https://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@github.com/aprendesc/eigenlib.git
-# !pip install git+https://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@github.com/aprendesc/swarm-intelligence-project.git
 import os
 
 from unsloth import FastLanguageModel
