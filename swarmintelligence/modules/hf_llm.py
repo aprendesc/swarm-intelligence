@@ -1,3 +1,5 @@
+import os
+
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
@@ -7,7 +9,7 @@ class HFModelClass:
 
     def initialize(self, model):
         import huggingface_hub
-        huggingface_hub.login(token='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')
+        huggingface_hub.login(token=os.environ['HF_TOKEN'])
         self.tokenizer = AutoTokenizer.from_pretrained(model_name)
         self.model = AutoModelForCausalLM.from_pretrained(model_name, ).to("cuda")
 
