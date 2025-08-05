@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "swarmintelligence"
+version = "0.1"
+description = "Agents and AI framework and orchestration."
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [
+    { name = "aprendesc", email = "prendescabo@gmail.com" }
+]
+license = { text = "MIT" }
+dependencies = []
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+
+[project.urls]
+Homepage = "https://github.com/aprendesc/swarm-intelligence"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+"swarmintelligence.env" = ["*.env"]
