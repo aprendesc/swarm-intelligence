@@ -5,6 +5,7 @@
 # !pip install telebot
 # !pip install git+https://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@github.com/aprendesc/eigenlib.git
 # !pip install git+https://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@github.com/aprendesc/swarm-intelligence-project.git
+import os
 
 from unsloth import FastLanguageModel
 import re
@@ -14,7 +15,7 @@ class OpenSourceLLM:
         pass
 
     def initialize(self, model_name="unsloth/Qwen3-14B"):
-        self.token = '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'
+        self.token = os.environ['HF_TOKEN']
         self.model, self.tokenizer = FastLanguageModel.from_pretrained(model_name=model_name, max_seq_length=2048, load_in_4bit=True, load_in_8bit=False, full_finetuning=False, token=self.token, )
 
     def train(self, dataset_name="unsloth/OpenMathReasoning-mini", saved_model_name="aprendesc/test_qwen_lora"):
