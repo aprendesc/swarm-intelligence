@@ -8,13 +8,14 @@ Pillow
 pytesseract
 beautifulsoup4
 markdownify
-fitz
 frontend
-PyMuPDF
+PyMuPDF==1.26.3
 opencv-python
 dask
 pyarrow
 wandb
-sklearn
+scikit-learn
 python-telegram-bot
 streamlit
+numpy
+cryptography

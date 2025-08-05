@@ -200,7 +200,7 @@ class MainClass:
         ], "Las columnas del DataFrame no coinciden exactamente con las esperadas"
         if self.use_wandb:
             wandb.login(key=os.environ['WANDB_API_KEY'])
-            wandb.init(project=os.environ['project_name'], config={"hypothesis": config['hypothesis']})
+            wandb.init(project=os.environ['PROJECT_NAME'], config={"hypothesis": config['hypothesis']})
         def generation_fun(variable_dict={}):
             state_dict = fixed_dict | variable_dict
             episode = EpisodeClass(state_dict['episode_id'])
