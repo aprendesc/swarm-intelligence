@@ -7,7 +7,7 @@ test_config = {
     'hypothesis': """Test assistant.""",
     'use_cloud': False,
     'use_wandb': True,
-    'n_samples': 20,
+    'n_samples': 2,
     # INITIALIZE
     'assistant_name': assistant_name,
     'user_model': 'gpt-4.1-mini',
@@ -94,8 +94,8 @@ Puntua de 0 a 10 la calidad de su ultima respuesta evaluando:
 
 """test_assistant/code_assistant"""
 assistant_name = 'software_developer_assistant'
-from swarmintelligence.personal_assistant_app.modules.python_code_interpteter_tool import PythonCodeInterpreterToolClass
-from swarmintelligence.personal_assistant_app.modules.bash_console_tool import BashConsoleInterpreterToolClass
+from swarmintelligence.modules.python_code_interpteter_tool import PythonCodeInterpreterToolClass
+from swarmintelligence.modules.bash_console_tool import BashConsoleInterpreterToolClass
 tools = {
     'python_code_interpreter': PythonCodeInterpreterToolClass(),
     'bash_interpreter': BashConsoleInterpreterToolClass()
@@ -351,7 +351,7 @@ code_assistant_config = test_config | update_dict
 
 """test_assistant/project_manager_assistant"""
 assistant_name = 'project_manager_assistant'
-from swarmintelligence.personal_assistant_app.modules.custom_assistant_tool import CustomAssistantTool
+from swarmintelligence.modules.custom_assistant_tool import CustomAssistantTool
 tools = {
     'software_developer_assistant': CustomAssistantTool(code_assistant_config, tool_description='This tool is a software engineer from your team as manager.'),
 }

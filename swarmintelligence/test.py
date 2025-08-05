@@ -1,8 +1,8 @@
 import unittest
 from eigenlib.utils.project_setup import ProjectSetupClass
-from swarmintelligence.personal_assistant_app.main import MainClass
-from swarmintelligence.personal_assistant_app.config import test_config as config
-ProjectSetupClass(project_name='swarmintelligence', app_name='personal_assistant')
+from swarmintelligence.main import MainClass
+from swarmintelligence.config import test_config as config
+ProjectSetupClass(project_folder='swarm-intelligence', test_environ=True)
 
 class TestMain(unittest.TestCase):
     def setUp(self):

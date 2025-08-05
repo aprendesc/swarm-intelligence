@@ -5,12 +5,12 @@ import datetime
 import inspect
 from pathlib import Path
 from eigenlib.utils.data_utils import DataUtilsClass
-from swarmintelligence.personal_assistant_app.main import MainClass
-import swarmintelligence.personal_assistant_app.config as configs_module
+from swarmintelligence.main import MainClass
+import swarmintelligence.config as configs_module
 from eigenlib.utils.project_setup import ProjectSetupClass
 
 # Inicializa la estructura de proyecto si aún no existe
-ProjectSetupClass(project_name='swarmintelligence', app_name='personal_assistant')
+ProjectSetupClass(project_folder='swarm-intelligence')
 
 # --- CONSTANTES Y RUTAS ---
 RAW_DATA_PATH    = Path(os.environ['RAW_DATA_PATH'])

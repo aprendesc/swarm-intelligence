@@ -2,7 +2,7 @@ import os
 import pandas as pd
 from eigenlib.utils.databricks_serving_utils import use_endpoint
 from eigenlib.utils.project_setup import ProjectSetupClass
-ProjectSetupClass(project_name='swarmintelligence', app_name='personal_assistant')
+ProjectSetupClass(project_folder='swarm-intelligence')
 
 class MainClass:
     def __init__(self, config={}):
@@ -31,10 +31,8 @@ class MainClass:
     @use_endpoint
     def tools_setup(self, config):
         from eigenlib.LLM.vector_database import VectorDatabaseClass
-        from eigenlib.utils.data_utils import DataUtilsClass
         from eigenlib.LLM.sources_parser import SourcesParserClass
         from eigenlib.utils.data_utils import DataUtilsClass
-        import pandas as pd
         import os
         ################################################################################################################
         if True:
@@ -55,10 +53,8 @@ class MainClass:
     @use_endpoint
     def dataset_generation(self, config):
         from eigenlib.LLM.vector_database import VectorDatabaseClass
-        from eigenlib.utils.data_utils import DataUtilsClass
         from eigenlib.LLM.sources_parser import SourcesParserClass
         from eigenlib.utils.data_utils import DataUtilsClass
-        import pandas as pd
         import os
         ################################################################################################################
         raw_sources = config['raw_sources']
@@ -258,13 +254,13 @@ class MainClass:
 
     @use_endpoint
     def telegram_chatbot_run(self, config):
-        from swarmintelligence.personal_assistant_app.modules.telegram_chatbot import TelegramChatbotClass
+        from swarmintelligence.modules.telegram_chatbot import TelegramChatbotClass
         ################################################################################################################
         BOT_TOKEN = "7775699333:AAHYOw3YsEtxgKZg1eUzUCl7lfrEQFnAH5o"
         ################################################################################################################
         self.initialize(config)
         def mi_logica_chat(mensaje, context):
-            from swarmintelligence.personal_assistant_app.config import test_config as config
+            from swarmintelligence.config import test_config as config
             config['user_message'] = mensaje
             config = self.predict(config)
             answer = config['state_dict']['answer']
@@ -276,14 +272,14 @@ class MainClass:
         import os
         import subprocess
         ################################################################################################################
-        file = os.path.join(os.environ['PROJECT_ROOT'], f'{os.environ["PROJECT_NAME"]}/{os.environ["APP_NAME"]}_app/modules/frontend.py')
+        file = os.path.join(os.environ['PROJECT_ROOT'], f'{os.environ["PROJECT_NAME"]}/modules/frontend.py')
         eigenlib_root = os.environ["PROJECT_ROOT"].replace(os.environ['PROJECT_FOLDER'], 'eigenlib')
         command = f'set PYTHONPATH={os.environ["PROJECT_ROOT"]};{eigenlib_root} && streamlit run ' + file
         subprocess.run(command, shell=True)
         return config
 
 if __name__ == '__main__':
-    from swarmintelligence.personal_assistant_app.config import code_assistant_config as config
+    from swarmintelligence.config import code_assistant_config as config
     main = MainClass(config)
     #main.initialize(config)
     #main.tools_setup(config)

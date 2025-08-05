@@ -1,5 +1,5 @@
 from eigenlib.LLM.episode import EpisodeClass
-from swarmintelligence.personal_assistant_app.main import MainClass
+from swarmintelligence.main import MainClass
 import pandas as pd
 
 class CustomAssistantTool:
