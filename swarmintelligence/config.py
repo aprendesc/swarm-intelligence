@@ -379,6 +379,7 @@ Stage 4: Report and deliver the results to the user as an answer, delivering the
 project_manager_assistant = test_config | update_dict
 ########################################################################################################################
 
+
 #from swarmintelligence.personal_assistant_app.modules.prompt_templates import generate_code_assistant_prompt
 #app_path = '/jedi-project-apc/jedipoc/jedi_automations_app'
 #generate_code_assistant_prompt('C:/Users/AlejandroPrendesCabo/Desktop/proyectos' + app_path),
