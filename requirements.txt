@@ -19,3 +19,5 @@ python-telegram-bot
 streamlit
 numpy
 cryptography
+git+https://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@github.com/aprendesc/eigenlib.git
+git+https://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@github.com/aprendesc/swarm-intelligence.git
