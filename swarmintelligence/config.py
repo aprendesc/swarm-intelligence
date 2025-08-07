@@ -92,6 +92,28 @@ Puntua de 0 a 10 la calidad de su ultima respuesta evaluando:
 }
 ########################################################################################################################
 
+"""test_assistant/general_purpose"""
+assistant_name = 'general_purpose_assistant'
+tools = {}
+update_dict = {
+    'hypothesis': """General purpose assistant.""",
+    # INITIALIZE
+    'assistant_name': assistant_name,
+    'agent_model': 'o4-mini',
+    'agent_reasoning_effort': 'high',
+    'temperature': 1,
+    'tools_dict': tools,
+    'tool_choice': 'auto',
+    #INFERENCE
+    'agent_context': """""",
+    'agent_instructions': "You are a very precise and obedient assistant.",
+    'steering': None,
+    'img': None,
+    'user_message': 'Ejecuta el codigo de factorial de 12 y dime el resultado.',
+}
+gp_assistant_config = test_config | update_dict
+########################################################################################################################
+
 """test_assistant/code_assistant"""
 assistant_name = 'software_developer_assistant'
 from swarmintelligence.modules.python_code_interpteter_tool import PythonCodeInterpreterToolClass
