@@ -218,7 +218,7 @@ with st.sidebar:
             default=['user','assistant', 'tool'])
 
         st.header("Model & Parámetros")
-        model_opts = ["o4-mini","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano"]
+        model_opts = ["gpt-5-chat", "gpt-5-mini", "o4-mini","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano"]
         default_model = st.session_state.config.get("agent_model","o4-mini")
         agent_model = st.selectbox(
             "Modelo agente:", model_opts,
