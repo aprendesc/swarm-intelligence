@@ -99,7 +99,7 @@ update_dict = {
     'hypothesis': """General purpose assistant.""",
     # INITIALIZE
     'assistant_name': assistant_name,
-    'agent_model': 'o4-mini',
+    'agent_model': 'gpt5-mini',
     'agent_reasoning_effort': 'high',
     'temperature': 1,
     'tools_dict': tools,
