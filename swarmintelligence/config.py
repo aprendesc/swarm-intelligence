@@ -94,7 +94,8 @@ Puntua de 0 a 10 la calidad de su ultima respuesta evaluando:
 
 """test_assistant/general_purpose"""
 assistant_name = 'general_purpose_assistant'
-tools = {}
+from swarmintelligence.modules.web_search_tool import WebSearchTool
+tools = {'intelligent_web_search': WebSearchTool()}
 update_dict = {
     'hypothesis': """General purpose assistant.""",
     # INITIALIZE
@@ -400,9 +401,3 @@ Stage 4: Report and deliver the results to the user as an answer, delivering the
 }
 project_manager_assistant = test_config | update_dict
 ########################################################################################################################
-
-
-#from swarmintelligence.personal_assistant_app.modules.prompt_templates import generate_code_assistant_prompt
-#app_path = '/jedi-project-apc/jedipoc/jedi_automations_app'
-#generate_code_assistant_prompt('C:/Users/AlejandroPrendesCabo/Desktop/proyectos' + app_path),
-
