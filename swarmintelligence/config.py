@@ -127,7 +127,7 @@ update_dict = {
     'hypothesis': """Software developer assistant that can be used as a tool for developing advanced software.""",
     # INITIALIZE
     'assistant_name': assistant_name,
-    'agent_model': 'o3',
+    'agent_model': 'gpt-5-mini',
     'agent_reasoning_effort': 'high',
     'temperature': 1,
     'tools_dict': tools,

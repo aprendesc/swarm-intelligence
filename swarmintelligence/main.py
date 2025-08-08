@@ -1,8 +1,6 @@
 import os
 import pandas as pd
 from eigenlib.utils.databricks_serving_utils import use_endpoint
-from eigenlib.utils.project_setup import ProjectSetupClass
-ProjectSetupClass(project_folder='swarm-intelligence')
 
 class MainClass:
     def __init__(self, config={}):
