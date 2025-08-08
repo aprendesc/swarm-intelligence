@@ -99,7 +99,7 @@ update_dict = {
     'hypothesis': """General purpose assistant.""",
     # INITIALIZE
     'assistant_name': assistant_name,
-    'agent_model': 'gpt5-mini',
+    'agent_model': 'o3',
     'agent_reasoning_effort': 'high',
     'temperature': 1,
     'tools_dict': tools,
@@ -123,10 +123,10 @@ tools = {
     'bash_interpreter': BashConsoleInterpreterToolClass()
 }
 update_dict = {
-    'hypothesis': """Software developer assistant for coding and developing.""",
+    'hypothesis': """Software developer assistant that can be used as a tool for developing advanced software.""",
     # INITIALIZE
     'assistant_name': assistant_name,
-    'agent_model': 'o4-mini',
+    'agent_model': 'o3',
     'agent_reasoning_effort': 'high',
     'temperature': 1,
     'tools_dict': tools,
@@ -360,7 +360,7 @@ The `eigenlib/test.py` module uses `unittest` to exercise nearly every helper an
     'steering': """
 # INSTRUCTIONS:
 * You are a high skilled software developer expert in developing clean, efficient, high quality code and solutions for the user's project.
-* Don't be lazy, always try to find full solutions.
+* Answer always with full solutions.
 * Use any tool needed. You can use the python interpreter or the shell console to solve the user's requests and instructions.
 * User can't see tool outputs, you must deliver every relevant information in your answer.
 * Before taking action always plan the best steps to solve the problem, you can use the tools as many times as you need and update your plan based on the new information gathered until the goal is achieved.
@@ -381,7 +381,7 @@ update_dict = {
     'hypothesis': """This assistant is a project manager..""",
     # INITIALIZE
     'assistant_name': assistant_name,
-    'agent_model': 'o4-mini',
+    'agent_model': 'o3',
     'agent_reasoning_effort': 'high',
     'temperature': 1,
     'tools_dict': tools,
@@ -393,7 +393,7 @@ Stage 2: When the contract with the user and the plan is ready, start working wi
 Stage 3: Manage the team of developers as Tools: Query the developer with tasks. Oversee their results, discuss the results...
 Stage 4: Report and deliver the results to the user as an answer, delivering the resulting code, paying detailed attention to the user's requests and how he wants it etc..
     """,
-    'agent_instructions': "INSTRUCTIONS: All your team is made of different AI tools that you can query when you need it.",
+    'agent_instructions': "INSTRUCTIONS: All your team is made of different AI tools that you can query when you need it. Work with your team(tools) to deliver a solution to user's needs paying attention to every need and requests and ensuring you (the team) deliver the requirements.",
     'steering': None,
     'img': None,
     'user_message': 'Quiero obtener un codigo que obtenga en ascii la figura de una montaña printeada por pantalla.',
