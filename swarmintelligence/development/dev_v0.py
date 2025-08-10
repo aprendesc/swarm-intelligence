@@ -103,10 +103,6 @@ answer = LLM.run([{'role': 'user', 'content': 'Actua como un simulador de fisica
 print(answer)
 
 
-
-
-
-
 from eigenlib.utils.project_setup import ProjectSetupClass
 ProjectSetupClass(project_folder='swarm-intelligence')
 
