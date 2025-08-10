@@ -277,7 +277,7 @@ eigenlib/
 
 ## 5. LLM/ Subpackage
 
-- **oai_llm.py**  
+- **llm_client.py**  
   OpenAI API client: query, manage conversation history, stubbed fine-tuning.
 
 - **kaia_llm.py**  

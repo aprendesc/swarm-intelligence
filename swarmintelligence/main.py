@@ -131,7 +131,7 @@ class MainClass:
     @use_endpoint
     def train(self, config):
         from eigenlib.utils.data_utils import DataUtilsClass
-        from eigenlib.LLM.oai_llm import OAILLMClientClass
+        from eigenlib.LLM.llm_client import LLMClientClass
         from eigenlib.LLM.llm_validation_split import LLMValidationSplitClass
         import os
         ################################################################################################################
@@ -146,7 +146,7 @@ class MainClass:
         df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=gen_dataset_name, format='csv', file_features=False, cloud=self.use_cloud).applymap(lambda x: None if pd.isna(x) else x)
         df = df[df['channel'].isin(['system','assistant','user', 'tool' ]) & (df['agent_id'].isin([agent_id]))]
         X_train, X_test = LLMValidationSplitClass().run(df, test_size=perc_split, random_seed=42)
-        OAILLMClientClass(model=ft_model).train(X_train=X_train, X_test=X_test, output_FT_dataset_name=ft_dataset_name, agent_id=agent_id, run_ft=run_ft, n_epoch=n_epochs)
+        LLMClientClass(model=ft_model).train(X_train=X_train, X_test=X_test, output_FT_dataset_name=ft_dataset_name, agent_id=agent_id, run_ft=run_ft, n_epoch=n_epochs)
         return config
 
     @use_endpoint

@@ -19,3 +19,4 @@ python-telegram-bot
 streamlit
 numpy
 cryptography
+zmq

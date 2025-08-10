@@ -103,14 +103,24 @@ answer = LLM.run([{'role': 'user', 'content': 'Actua como un simulador de fisica
 print(answer)
 
 
-def run(self, episode, agent_id=None, use_steering=True, response_format=None, tool_choice='auto'):
-    if model in ['gpt-4.1', 'gpt-4.1-mini', 'gpt-5', 'o3']:
-        self._run_oai(self, episode, agent_id=None, use_steering=True, response_format=None, tool_choice='auto'):
 
-    elif model in ['']:
-        self._run_kaia(self, episode, agent_id=None, use_steering=True, response_format=None, tool_choice='auto'):
 
-    elif 'oss' in ['']:
-        self._run_oss(self, episode, agent_id=None, use_steering=True, response_format=None, tool_choice='auto'):
-    else:
-        print('Register de model in the class.')
+
+
+from eigenlib.utils.project_setup import ProjectSetupClass
+ProjectSetupClass(project_folder='swarm-intelligence')
+
+from eigenlib.LLM.llm_client import LLMClientClass
+from eigenlib.LLM.episode import EpisodeClass
+
+################################################################################################################
+episode = EpisodeClass()
+episode.log(channel='user', modality='text', content='Cuenta de 0 a 10', agent_id='Q')
+answer = LLMClientClass(model='gpt-5-chat', temperature=1).run(episode=episode, agent_id='Q')
+print(answer)
+answer = LLMClientClass(model='o3', temperature=1).run(episode=episode, agent_id='Q')
+print(answer)
+answer = LLMClientClass(model='claude-3_v1', temperature=1).run(episode=episode, agent_id='Q')
+print(answer)
+answer = LLMClientClass(model="oss_phi_4", temperature=1).run(episode=episode, agent_id='Q')
+print(answer)
