@@ -2,7 +2,8 @@ import unittest
 from eigenlib.utils.project_setup import ProjectSetupClass
 ProjectSetupClass(project_folder='swarm-intelligence', test_environ=True)
 
-class UnitTestMainClass(unittest.TestCase):
+"""Integration tests"""
+class TestMainClass(unittest.TestCase):
     def setUp(self):
         from eigenlib.utils.testing_utils import TestingUtilsClass, test_class_code_coverage
         from swarmintelligence.main import MainClass
@@ -426,7 +427,8 @@ Puntua de 0 a 10 la calidad de su ultima respuesta evaluando:
         print("✓ launch_front probado (servidor iniciado 3 s y cerrado).")
         updated_config = self.main.launch_front({})
 
-class UnitTestModulesClass(unittest.TestCase):
+"""Unit tests"""
+class TestModulesClass(unittest.TestCase):
     def setUp(self):
         import os
         from eigenlib.utils.testing_utils import TestingUtilsClass, module_test_coverage

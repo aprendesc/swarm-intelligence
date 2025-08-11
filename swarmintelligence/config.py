@@ -1,6 +1,6 @@
 
-"""test_assistant"""
-assistant_name = 'test_assistant'
+"""base_assistant"""
+assistant_name = 'base_assistant'
 from eigenlib.LLM.base_agent_tools import VDBToolClass
 tools = {'sources_search_engine': VDBToolClass(vdb_name=assistant_name + '_VDB')}
 test_config = {
