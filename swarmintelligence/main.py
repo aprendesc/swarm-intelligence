@@ -32,20 +32,18 @@ class MainClass:
         from eigenlib.LLM.sources_parser import SourcesParserClass
         from eigenlib.utils.data_utils import DataUtilsClass
         import os
-        ################################################################################################################
-        if True:
-            ############################################################################################################
-            raw_sources = config['raw_sources']
-            lang = config['lang']
-            VDB_name = config['vdb_name']
-            vdb_chunking_threshold = config['vdb_chunking_threshold']
-            ############################################################################################################
-            df = SourcesParserClass().run_batch(raw_sources, lang=lang)
-            #INDEXATION
-            VDB = VectorDatabaseClass(content_feature='steering')
-            VDB.initialize()
-            source_df = VDB.create(df['content'].sum(), separator='.', create_vectors=True, chunking_threshold=vdb_chunking_threshold)
-            DataUtilsClass().save_dataset(source_df, path=os.environ['CURATED_DATA_PATH'], dataset_name=VDB_name, format='pkl', cloud=self.use_cloud)
+        ############################################################################################################
+        raw_sources = config['raw_sources']
+        lang = config['lang']
+        VDB_name = config['vdb_name']
+        vdb_chunking_threshold = config['vdb_chunking_threshold']
+        ############################################################################################################
+        df = SourcesParserClass().run_batch(raw_sources, lang=lang)
+        #INDEXATION
+        VDB = VectorDatabaseClass(content_feature='steering')
+        VDB.initialize()
+        source_df = VDB.create(df['content'].sum(), separator='.', create_vectors=True, chunking_threshold=vdb_chunking_threshold)
+        DataUtilsClass().save_dataset(source_df, path=os.environ['CURATED_DATA_PATH'], dataset_name=VDB_name, format='pkl', cloud=self.use_cloud)
         return config
 
     @use_endpoint

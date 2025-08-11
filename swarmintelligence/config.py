@@ -117,7 +117,7 @@ gp_assistant_config = test_config | update_dict
 
 """test_assistant/code_assistant"""
 assistant_name = 'software_developer_assistant'
-from swarmintelligence.modules.python_code_interpteter_tool import PythonCodeInterpreterToolClass
+from swarmintelligence.modules.python_code_interpreter_tool import PythonCodeInterpreterToolClass
 from swarmintelligence.modules.bash_console_tool import BashConsoleInterpreterToolClass
 tools = {
     'python_code_interpreter': PythonCodeInterpreterToolClass(),
@@ -370,6 +370,73 @@ The `eigenlib/test.py` module uses `unittest` to exercise nearly every helper an
     'user_message': 'Ejecuta el codigo de factorial de 12 y dime el resultado.',
 }
 code_assistant_config = test_config | update_dict
+########################################################################################################################
+
+"""test_assistant/code_assistant_2"""
+assistant_name = 'software_developer_2_assistant'
+tools = {}
+update_dict = {
+    'hypothesis': """Software developer assistant that can be used as a tool for developing advanced software.""",
+    # INITIALIZE
+    'assistant_name': assistant_name,
+    'agent_model': 'o3',
+    'agent_reasoning_effort': 'high',
+    'temperature': 1,
+    'tools_dict': tools,
+    'tool_choice': 'auto',
+    #INFERENCE
+    'agent_context': """""",
+    'agent_instructions': """You are an expert code developer in R&D code, where we focus on having the fastest and more effective code that solves the given task."
+You must follow the instructions to write code in the R&D prototyping way:
+# INSTRUCTIONS FOR R&D CODE DEVELOPING:
+* You never include comments or annotations of any kind in your answers.
+* Every line must include a single execution of code, avoid unnecessary line jumps and also multiple executions of code in a single line. One line of code = One python command.
+* Your code must carefully follow all the user's requirements.
+* Dont include type annotations, error exceptions, unnecesary prints... that adds length and is not needed for functionality-
+* You are VERY focused in giving the simplest code that solves the request from the user. You can reason and think internally in terms of more complex solutions but at the end you always end up simplyfiying the code with the above rules.
+* Always thin all the time you need to check step by step that all requirements from the user are met.
+* All the code is designed to be launched in an inline python interpreter.
+* All codes must be functional just by launching the code inside python, always include the code and the launch method already configured to test it.
+
+Simple example of R&D coding standards, indications of style are between < and >:
+
+import pandas as pd
+from numpy import *
+from my_class import MyClass
+
+class ExampleClass():
+    def __init__(self):
+        pass
+    
+    def method_1(self, argument_1, argument_2, argument_3=None): <no line jumps despite of length of arguments>
+        a = argument_2 <one line for each single python command>
+        b = argument_1
+        c = argument_3 if argument_3 is not None else 0 <compatify when it is not too much>
+        return a, b, c 
+
+    def method_2(self, argument_1, argument_2='test'):
+        <we avoid comments.>
+        my_class = MyClass()
+        output = my_class.run(argument_1)
+        return {'a':output, 'b':2, 'c':self._aux_method()}
+
+    @staticmethod<one line separation between methods>
+    def _aux_method():
+        return 1
+
+if __name__=='__main__': <Ready to launch code>
+    ec = ExampleClass()
+    output1 = ec.method_2(1,, argument_2='no_test')
+    print(output1)
+    output2 = ec.method_2(1, argument_2='no_test')
+    print(output2)
+    
+""",
+    'steering': None,
+    'img': None,
+    'user_message': 'Ejecuta el codigo de factorial de 12 y dime el resultado.',
+}
+code_assistant_2_config = test_config | update_dict
 ########################################################################################################################
 
 """test_assistant/project_manager_assistant"""

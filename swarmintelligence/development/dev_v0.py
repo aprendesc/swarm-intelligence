@@ -1,122 +1,50 @@
-from eigenlib.utils.project_setup import ProjectSetupClass
-ProjectSetupClass(project_folder='swarm-intelligence')
-
-
-class AddNumbersTool:
-    """
-    Ejemplo básico de tool:
-    – name            : nombre con el que el agente la invoca.
-    – description     : texto corto para el modelo.
-    – args            : metadatos de los parámetros (nombre, tipo, descripción, required).
-    – get_tool_dict() : devuelve la especificación JSON-schema para la API “functions”.
-    – run()           : lógica simple (a + b).
-    """
-
-    def __init__(self):
-        self.name = "add_numbers"
-        self.description = "Adds two numbers and returns the result."
-        self.args = [
-            {
-                "name": "a",
-                "type": "number",
-                "description": "First summand.",
-                "required": True
-            },
-            {
-                "name": "b",
-                "type": "number",
-                "description": "Second summand.",
-                "required": True
-            }
-        ]
-
-    # Hook opcional para inicializar recursos (BD, modelos, etc.)
-    def initialize(self):
-        pass
-
-    def get_tool_dict(self):
-        """Devuelve la definición compatible con function-calling."""
-        return self._gen_tool_dict(self.name, self.description, self.args)
-
-    def run(self, a, b):
-        """Suma dos números y devuelve la respuesta final que verá el agente."""
-        return {"result": a + b}
-
-    # ------------- helpers internos -------------
-    def _gen_tool_dict(self, tool_name, tool_description, tool_args):
-        """
-        Construye el JSON-schema exigido por las APIs de function-calling
-        (chat-completion, agente de LangChain, etc.).
-        """
-        args_schema = {}
-        required = []
-        for arg in tool_args:
-            args_schema[arg["name"]] = {
-                "type": arg["type"],
-                "description": arg["description"]
-            }
-            if arg.get("required"):
-                required.append(arg["name"])
-
-        return {
-            "type": "function",
-            "function": {
-                "name": tool_name,
-                "description": tool_description,
-                "parameters": {
-                    "type": "object",
-                    "properties": args_schema,
-                    "required": required
-                }
-            }
-        }
-from eigenlib.LLM.intelligent_web_search import IntelligentWebSearch
-result = IntelligentWebSearch().run('Como se hace una tortilla', num_results=3)
-
-from swarmintelligence.main import MainClass
-from swarmintelligence.config import gp_assistant_config as config
-main = MainClass(config)
-
-main.initialize(config)
-config['user_message'] = 'Busca el tiempo en Alpedrete'
-updated_config = main.predict(config)
-print(updated_config['state_dict']['answer'])
-
-
-
-
-from eigenlib.utils.nano_net import NanoNetClass
-
-class OSLLMClientClass:
-    def __init__(self, master_address='tcp://95.18.166.44:5005'):
-        password = 'youshallnotpass'
-        ################################################################################################################
-        self.client_node = NanoNetClass()
-        self.client_node.launch_node(node_name='client_node', node_method=None, master_address=master_address, password=password, delay=1)
-
-    def run(self, history):
-        result = self.client_node.call(address_node="phi_4_node", payload={'history': history})
-        return result
-
-LLM = OSLLMClientClass()
-answer = LLM.run([{'role': 'user', 'content': 'Actua como un simulador de fisicas: si tengo una caja con pelotas, una de adhesivo, otra de helio otra de plomo y otra de neutronio, en t0 la caja esta dada la vuelta y con las pelotas en el fondo, cual es el estado en t10 segundos? '}])
-print(answer)
-
-
+#AGI 1
+import pandas as pd
 from eigenlib.utils.project_setup import ProjectSetupClass
 ProjectSetupClass(project_folder='swarm-intelligence')
 
 from eigenlib.LLM.llm_client import LLMClientClass
 from eigenlib.LLM.episode import EpisodeClass
 
-################################################################################################################
+def get_neighbours(df, n, m):
+    top_positions = df['score'].nlargest(n).index
+    neighbour_positions = set()
+    for pos in top_positions:
+        for p in range(pos - m, pos + m + 1):
+            if 0 <= p < len(df):  # ensure in bounds
+                neighbour_positions.add(p)
+    subset_df = df.iloc[sorted(neighbour_positions)]
+    return subset_df
+
+from eigenlib.LLM.oai_embeddings import OAIEmbeddingsClass
+oaiemb = OAIEmbeddingsClass()
+oaiemb.initialize()
+teacher_episode = EpisodeClass()
 episode = EpisodeClass()
-episode.log(channel='user', modality='text', content='Cuenta de 0 a 10', agent_id='Q')
-answer = LLMClientClass(model='gpt-5-chat', temperature=1).run(episode=episode, agent_id='Q')
-print(answer)
-answer = LLMClientClass(model='o3', temperature=1).run(episode=episode, agent_id='Q')
-print(answer)
-answer = LLMClientClass(model='claude-3_v1', temperature=1).run(episode=episode, agent_id='Q')
-print(answer)
-answer = LLMClientClass(model="oss_phi_4", temperature=1).run(episode=episode, agent_id='Q')
-print(answer)
+full_memory_episode = EpisodeClass()
+long_term_memory = 'Eres un asistente con actitud de aprendizaje. Responde de forma natural como un alumno humano.'
+episode.log(channel='system', modality='text', content=long_term_memory, agent_id='AGI1')
+teacher_episode.log(channel='system', modality='text', content='Examina al alumno sobre eventos historicos sucedidos en el año 2024 y de los cuales solo se puede tener información habiendo vivido en 2024, con info a posteriori. Si no los sabe o se los inventa corrigele y enseñale y vuelve a examinarle. Obten una nota final despues de cada evaluación y compara las mejoras tras darle las clases. Adopta el tono y actitud de un profesor humano. Haz una pregunta de cada vez, siendo natural.', agent_id='TEACHER')
+
+while True:
+    if True:
+        user_message = LLMClientClass(model='gpt-5-mini', temperature=1).run(episode=teacher_episode, agent_id='TEACHER')
+    else:
+        user_message = 'Entonces como consiguió relajar el problema humanitario de gaza del 2024?'
+    print('User: ', user_message)
+    print('==============================================================================')
+    teacher_episode.log(channel='assistant', modality='text', content=user_message, agent_id='TEACHER')
+    episode.log(channel='user', modality='text', content=user_message, agent_id='AGI1', emb=oaiemb._get_embedding(user_message))
+    answer = LLMClientClass(model='gpt-4o', temperature=1).run(episode=episode, agent_id='AGI1')
+    long_term_memory = get_neighbours(oaiemb.get_similarity(episode.history, 'emb', user_message + '->' + answer), 10, 20)
+    short_term_memory = episode.history.tail(3)
+    full_memory_episode.history = pd.concat([long_term_memory, short_term_memory], axis=0).drop_duplicates(['timestamp'])
+    full_memory_episode.history = full_memory_episode.history.sort_values(by='timestamp', ascending=True)
+    answer = LLMClientClass(model='gpt-4o', temperature=1).run(episode=full_memory_episode, agent_id='AGI1')
+    episode.log(channel='assistant', modality='text', content=answer, agent_id='AGI1', emb=oaiemb._get_embedding(answer))
+    teacher_episode.log(channel='user', modality='text', content=answer, agent_id='TEACHER')
+    print('Assistant:', answer)
+    print('==============================================================================')
+    episode.history = episode.history[episode.history['steering'] == False]
+
+
