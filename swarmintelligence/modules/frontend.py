@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 import pickle
 import datetime
 import inspect
@@ -7,15 +6,13 @@ from pathlib import Path
 from eigenlib.utils.data_utils import DataUtilsClass
 from swarmintelligence.main import MainClass
 import swarmintelligence.configs.config as configs_module
-from eigenlib.utils.project_setup import ProjectSetupClass
+from eigenlib.utils.setup import *
 
 class FrontEndClass:
     def __init__(self):
         pass
 
     def run(self):
-        # Inicializa la estructura de proyecto si aún no existe
-        ProjectSetupClass(project_folder='swarm-intelligence')
 
         # --- CONSTANTES Y RUTAS ---
         RAW_DATA_PATH    = Path(os.environ['RAW_DATA_PATH'])
@@ -569,3 +566,6 @@ class FrontEndClass:
                                       st.session_state.current_chat_file)
                     # Reiniciamos la app para refrescar todo
                     st.rerun()
+
+if __name__ == '__main__':
+    FrontEndClass().run()

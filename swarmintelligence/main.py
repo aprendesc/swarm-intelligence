@@ -267,9 +267,15 @@ class MainClass:
     def launch_front(self, config):
         import os
         import subprocess
+        os.environ['PROJECT_ROOT'] = os.getcwd()
         ################################################################################################################
-        file = os.path.join(os.environ['PROJECT_ROOT'], f'{os.environ["PROJECT_NAME"]}/modules/frontend.py')
-        eigenlib_root = os.environ["PROJECT_ROOT"].replace(os.environ['PROJECT_FOLDER'], 'eigenlib')
+        file = os.path.join(os.environ['PROJECT_ROOT'], f'swarmintelligence/modules/frontend.py')
+        eigenlib_root = os.environ["PROJECT_ROOT"].replace(os.environ['PROJECT_DIR'], 'eigenlib')
         command = f'set PYTHONPATH={os.environ["PROJECT_ROOT"]};{eigenlib_root} && streamlit run ' + file
         subprocess.run(command, shell=True)
         return config
+
+if __name__ == '__main__':
+    from swarmintelligence.configs.config import test_config as config
+    main = MainClass(config)
+    main.launch_front(config)
