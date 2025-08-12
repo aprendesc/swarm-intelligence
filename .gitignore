@@ -12,7 +12,9 @@ build/
 data/raw/*
 data/curated/*
 data/processed/*
-test/*
+tests/data/raw/*
+tests/data/curated/*
+tests/data/processed/*
 !data/raw/gitkeep
 !data/curated/gitkeep
 !data/processed/gitkeep

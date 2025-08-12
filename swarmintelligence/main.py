@@ -3,7 +3,7 @@ import pandas as pd
 from eigenlib.utils.databricks_serving_utils import use_endpoint
 
 class MainClass:
-    def __init__(self, config={}):
+    def __init__(self, config=None):
         self.hypothesis = config['hypothesis']
         self.use_cloud = config['use_cloud']
         self.use_wandb = config['use_wandb']
@@ -256,7 +256,7 @@ class MainClass:
         ################################################################################################################
         self.initialize(config)
         def mi_logica_chat(mensaje, context):
-            from swarmintelligence.config import gp_assistant_config as config
+            from swarmintelligence.configs.config import gp_assistant_config as config
             config['user_message'] = mensaje
             config = self.predict(config)
             answer = config['state_dict']['answer']
@@ -273,16 +273,3 @@ class MainClass:
         command = f'set PYTHONPATH={os.environ["PROJECT_ROOT"]};{eigenlib_root} && streamlit run ' + file
         subprocess.run(command, shell=True)
         return config
-
-if __name__ == '__main__':
-    from swarmintelligence.config import code_assistant_config as config
-    main = MainClass(config)
-    #main.initialize(config)
-    #main.tools_setup(config)
-    #main.dataset_generation(config)
-    #main.dataset_labeling(config)
-    #main.train(config)
-    #main.eval(config)
-    #main.predict(config)
-    #main.telegram_chatbot_run(config)
-    main.launch_front(config)

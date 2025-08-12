@@ -8,12 +8,6 @@ import signal
 from contextlib import redirect_stdout, redirect_stderr
 import requests
 
-class TimeoutError(Exception):
-    pass
-
-def timeout_handler(signum, frame):
-    raise TimeoutError("Code execution timed out")
-
 class PythonCodeInterpreterToolClass:
     def __init__(self, timeout_seconds=30):
         self.name = "python_code_interpreter"
@@ -51,7 +45,7 @@ class PythonCodeInterpreterToolClass:
         try:
             # Set up timeout
             if hasattr(signal, 'SIGALRM'):  # Unix systems
-                signal.signal(signal.SIGALRM, timeout_handler)
+                signal.signal(signal.SIGALRM, self.timeout_handler)
                 signal.alarm(self.timeout_seconds)
 
             with redirect_stdout(buf_out), redirect_stderr(buf_err):
@@ -204,3 +198,9 @@ class PythonCodeInterpreterToolClass:
                 required_list.append(arg_name)
             args_dict[arg_name] = {"type": arg_type, "description": arg_description}
         return {"type": "function", "function": {"name": tool_name, "description": tool_description, "parameters": {"type": "object", "properties": args_dict, "required": required_list}}}
+
+    class TimeoutError(Exception):
+        pass
+
+    def timeout_handler(self, signum, frame):
+        raise TimeoutError("Code execution timed out")

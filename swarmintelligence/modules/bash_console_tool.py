@@ -4,10 +4,6 @@ import time
 import json
 import traceback
 
-class PowerShellTimeoutError(Exception):
-    """Excepción para timeout de PowerShell"""
-    pass
-
 class BashConsoleInterpreterToolClass:
     def __init__(self, timeout_seconds=30):
         self.name = "bash_interpreter"
