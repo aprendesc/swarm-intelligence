@@ -1,3 +1,4 @@
+import unittest
 from eigenlib.utils.testing_utils import TestUtils
 TestUtils().get_coverage('./swarmintelligence')
 
@@ -17,7 +18,7 @@ config = {
     }
 
 #LAUNCHER###############################################################################################################
-class TestMainModule:
+class TestMainModule(unittest.TestCase):
     def setUp(self):
         pass
 
