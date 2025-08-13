@@ -240,6 +240,7 @@ class MainClass:
                         'user_message': config['user_message'],
                         }
         history = config['history']
+        self.chain.use_agent_steering = True
         ################################################################################################################
         episode = EpisodeClass()
         episode.history = pd.DataFrame(history)
@@ -274,8 +275,3 @@ class MainClass:
         command = f'set PYTHONPATH={os.environ["PROJECT_ROOT"]};{eigenlib_root} && streamlit run ' + file
         subprocess.run(command, shell=True)
         return config
-
-if __name__ == '__main__':
-    from swarmintelligence.configs.config import test_config as config
-    main = MainClass(config)
-    main.launch_front(config)

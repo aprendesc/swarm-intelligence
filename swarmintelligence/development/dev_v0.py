@@ -2,6 +2,18 @@ import unittest
 from eigenlib.utils.testing_utils import TestUtils
 TestUtils().get_coverage('./swarmintelligence')
 
+
+from swarmintelligence.main import MainClass
+from swarmintelligence.configs.test_config import test_config as config
+
+main = MainClass(config)
+
+
+
+
+
+
+
 #MODULE##########################################################################################################
 class MainModule:
     def __init__(self):
