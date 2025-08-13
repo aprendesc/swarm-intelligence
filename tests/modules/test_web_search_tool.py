@@ -9,5 +9,5 @@ class TestWebSearchTool(unittest.TestCase):
         import json
         ################################################################################################################
         tool = WebSearchTool()
-        out = tool.run(query="openai gpt-4", num_results=3)
+        out = tool.run(query="tiempo Alpedrete ahora", num_results=5)
         print(json.loads(out))

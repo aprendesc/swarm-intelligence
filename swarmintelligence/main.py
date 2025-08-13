@@ -269,6 +269,7 @@ class MainClass:
         import os
         import subprocess
         os.environ['PROJECT_ROOT'] = os.getcwd()
+        os.environ['PROJECT_DIR'] = 'swarm-intelligence'
         ################################################################################################################
         file = os.path.join(os.environ['PROJECT_ROOT'], f'swarmintelligence/modules/frontend.py')
         eigenlib_root = os.environ["PROJECT_ROOT"].replace(os.environ['PROJECT_DIR'], 'eigenlib')

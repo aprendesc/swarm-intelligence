@@ -15,7 +15,7 @@ class WebSearchTool:
             {
                 "name": "num_results",
                 "type": "integer",
-                "description": "Maximum number of results to get with a maximum of 10. Higher number for a deeper search. Default 3",
+                "description": "Maximum number of results to get with a maximum of 20. Higher number for a deeper search. Default 10",
                 "required": True,
             },
         ]
@@ -49,7 +49,7 @@ class WebSearchTool:
             },
         }
 
-    def run(self, query, num_results=5):
+    def run(self, query, num_results):
         num_results = max(1, min(int(num_results), 10))
         search_engine = IntelligentWebSearch()
         raw_results = search_engine.run(query, num_results=num_results)
