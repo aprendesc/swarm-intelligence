@@ -33,21 +33,20 @@ if True:
 if False:
     from swarmintelligence.main import MainClass
     from swarmintelligence.configs.test_config import test_config as config
-
     main = MainClass(config)
-    main.ETL(config)
-    # main.train(config)
-    # main.hparam_tuning(config)
-    # main.eval(config)
-    # main.predict(config)
+    main.initialize(config)
+    main.tools_setup(config)
+    main.dataset_generation(config)
+    main.dataset_labeling(config)
+    main.train(config)
+    main.eval(config)
+    main.predict(config)
+    main.telegram_chatbot_run(config)
 
 ########################################################################################################################
 """Run all tests"""
 if False:
-    from dotenv import load_dotenv
     import unittest
-
-    load_dotenv()
     loader = unittest.TestLoader()
     suite = loader.discover(start_dir='./tests/modules', pattern='test_*.py')
     runner = unittest.TextTestRunner(verbosity=2)
