@@ -1,33 +1,11 @@
 from swarmintelligence.configs.test_config import test_config
 
-"""test_assistant/general_purpose"""
-assistant_name = 'general_purpose_assistant'
-from swarmintelligence.modules.web_search_tool import WebSearchTool
-tools = {'intelligent_web_search': WebSearchTool()}
-update_dict = {
-    'hypothesis': """General purpose assistant.""",
-    # INITIALIZE
-    'assistant_name': assistant_name,
-    'agent_model': 'o3',
-    'agent_reasoning_effort': 'high',
-    'temperature': 1,
-    'tools_dict': tools,
-    'tool_choice': 'auto',
-    #INFERENCE
-    'agent_context': """""",
-    'agent_instructions': "You are a very precise and obedient assistant.",
-    'steering': None,
-    'img': None,
-    'user_message': 'Ejecuta el codigo de factorial de 12 y dime el resultado.',
-}
-gp_assistant_config = test_config | update_dict
-########################################################################################################################
-
 """test_assistant/code_assistant"""
 from swarmintelligence.modules.get_project_map import GetProjectMap
 flat_map, tree_map = GetProjectMap().run(r'C:\Users\AlejandroPrendesCabo\Desktop\proyectos\swarm-intelligence')
 assistant_name = 'software_developer_assistant'
 from swarmintelligence.modules.code_interpreter_tool import CodeInterpreterToolClass
+from swarmintelligence.modules.web_search_tool import WebSearchTool
 interpreter_path = r"C:\Users\AlejandroPrendesCabo\Desktop\proyectos\swarm-intelligence\.venv\Scripts\python.exe"
 tools = {
     'code_interpreter': CodeInterpreterToolClass(interpreter_path=interpreter_path, path_folders=[

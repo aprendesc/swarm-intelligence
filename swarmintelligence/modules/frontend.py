@@ -160,8 +160,8 @@ class FrontEndClass:
 
         available_configs = get_available_configs(configs_module)
         config_names = list(available_configs.keys())
-        if 'gp_assistant_config' in config_names:
-            default_config_name = 'gp_assistant_config'
+        if 'code_assistant_config' in config_names:
+            default_config_name = 'code_assistant_config'
         elif config_names:
             default_config_name = config_names[0]
         else:
