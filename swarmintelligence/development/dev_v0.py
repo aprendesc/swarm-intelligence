@@ -32,7 +32,7 @@ if True:
 """Launch main"""
 if False:
     from swarmintelligence.main import MainClass
-    from swarmintelligence.configs.test_config import test_config as config
+    from swarmintelligence.configs.test_config import config
     main = MainClass(config)
     main.initialize(config)
     main.tools_setup(config)
@@ -90,4 +90,20 @@ if False:
     test = TestMainModule()
     test.setUp()
     test.test_run()
+
+"""Detect configs"""
+if True:
+
+
+    def get_available_configs():
+        """Revisa el directorio ./<PROJECT_NAME>/configs y devuelve un diccionario con nombres de archivo y rutas."""
+        base_path = f'./{os.environ["PROJECT_NAME"]}/configs'
+        configs = [c for c in os.listdir(base_path) if 'config' in c.lower()]
+        return configs
+
+    import importlib
+    sel_config = configs[0].replace('.py','')
+    module_path = f"{os.environ['PROJECT_NAME']}.configs.{sel_config}"
+    module = importlib.import_module(module_path)
+    config = getattr(module, "config")
 

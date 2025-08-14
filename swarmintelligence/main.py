@@ -4,9 +4,7 @@ from eigenlib.utils.databricks_serving_utils import use_endpoint
 
 class MainClass:
     def __init__(self, config=None):
-        self.hypothesis = config['hypothesis']
-        self.use_cloud = config['use_cloud']
-        self.use_wandb = config['use_wandb']
+        pass
 
     @use_endpoint
     def initialize(self, config):
@@ -257,7 +255,7 @@ class MainClass:
         ################################################################################################################
         self.initialize(config)
         def mi_logica_chat(mensaje, context):
-            from swarmintelligence.configs.config import code_assistant_config as config
+            from swarmintelligence.configs.code_assistant_config import config
             config['user_message'] = mensaje
             config = self.predict(config)
             answer = config['state_dict']['answer']

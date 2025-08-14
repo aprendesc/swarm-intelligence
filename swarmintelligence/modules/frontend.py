@@ -1,3 +1,5 @@
+import os
+import importlib
 import streamlit as st
 import pickle
 import datetime
@@ -5,8 +7,27 @@ import inspect
 from pathlib import Path
 from eigenlib.utils.data_utils import DataUtilsClass
 from swarmintelligence.main import MainClass
-import swarmintelligence.configs.config as configs_module
-from eigenlib.utils.setup import *
+if True:
+    import sys
+    import os
+    from dotenv import load_dotenv
+    ####################################################################################################################
+    project_folder = 'swarm-intelligence'
+    base_path = f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos'
+    ####################################################################################################################
+    load_dotenv()
+    os.getcwd()
+    sys.path.extend([
+        os.path.join(base_path, 'swarm-ml'),
+        os.path.join(base_path, 'swarm-intelligence'),
+        os.path.join(base_path, 'swarm-automations'),
+        os.path.join(base_path, 'swarm-compute'),
+        os.path.join(base_path, 'eigenlib')
+    ])
+    os.environ['PROJECT_NAME'] = project_folder.replace('-', '')
+    os.environ['PROJECT_FOLDER'] = project_folder
+    os.chdir(os.path.join(base_path, project_folder))
+
 
 class FrontEndClass:
     def __init__(self):
@@ -20,10 +41,11 @@ class FrontEndClass:
         HISTORY_DIR      = Path(os.environ['PROCESSED_DATA_PATH']) / "personal_assistant_chat_history"
         HISTORY_DIR.mkdir(parents=True, exist_ok=True)
 
-        def get_available_configs(module):
-            """Inspecciona un módulo y devuelve un diccionario con los nombres y objetos de las configuraciones."""
-            return {name: obj for name, obj in inspect.getmembers(module)
-                    if isinstance(obj, dict) and not name.startswith('__')}
+        def get_available_configs():
+            """Revisa el directorio ./<PROJECT_NAME>/configs y devuelve un diccionario con nombres de archivo y rutas."""
+            base_path = f'./{os.environ["PROJECT_NAME"]}/configs'
+            configs = [c for c in os.listdir(base_path) if 'config' in c.lower()]
+            return configs
 
         def get_all_raw_files(directory: Path):
             if not directory.exists(): return []
@@ -158,20 +180,20 @@ class FrontEndClass:
         st.set_page_config(page_title="Personal Assistant", layout="wide", initial_sidebar_state="expanded")
         st.title("🧠 Asistente Personal")
 
-        available_configs = get_available_configs(configs_module)
-        config_names = list(available_configs.keys())
-        if 'code_assistant_config' in config_names:
-            default_config_name = 'code_assistant_config'
-        elif config_names:
-            default_config_name = config_names[0]
-        else:
+        available_configs = get_available_configs()#configs_module)
+        available_configs = [a.replace('.py', '') for a in available_configs]
+        try:
+            default_config_name = available_configs[0]
+        except:
             st.error("No se encontraron diccionarios de configuración en `config.py`.")
             st.stop()
 
         if 'selected_config_name' not in st.session_state:
             st.session_state.selected_config_name = default_config_name
 
-        config = available_configs[st.session_state.selected_config_name]
+        module_path = f"{os.environ['PROJECT_NAME']}.configs.{st.session_state.selected_config_name}"
+        module = importlib.import_module(module_path)
+        config = getattr(module, "config")
 
         if "main_class" not in st.session_state:
             st.session_state.main_class = MainClass(config)
@@ -198,11 +220,7 @@ class FrontEndClass:
             # --- PESTAÑA 1: Configuración y Chats ---
             with tab1:
                 st.header("Configuración Base")
-                selected = st.selectbox(
-                    "Elige configuración:",
-                    config_names,
-                    index=config_names.index(st.session_state.selected_config_name)
-                )
+                selected = st.selectbox("Elige configuración:", available_configs, index=available_configs.index(st.session_state.selected_config_name))
                 if selected != st.session_state.selected_config_name:
                     st.session_state.selected_config_name = selected
                     for k in ['main_class','history','current_chat_file',

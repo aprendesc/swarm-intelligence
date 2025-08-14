@@ -20,6 +20,4 @@ streamlit
 numpy
 cryptography
 zmq
-git+https://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@github.com/aprendesc/swarm-automations.git
-git+https://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@github.com/aprendesc/swarm-ml.git
-git+https://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@github.com/aprendesc/swarm-compute.git
+pyfiglet

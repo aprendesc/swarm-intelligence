@@ -1,13 +1,12 @@
-#!/bin/bash
-# ==========================================
-# Script para iniciar el proyecto swarm-intelligence
-# ==========================================
+# Añadir PROJECT_NAME
+export PROJECT_NAME="swarmintelligence"
+export PROJECT_FOLDER="swarm-intelligence"
 
 # Cambiar al directorio del proyecto
-cd "C:/Users/$USERNAME/Desktop/proyectos/swarm-intelligence" || exit
+cd "C:/Users/$USERNAME/Desktop/proyectos/$PROJECT_FOLDER" || exit
 
 # Configurar PYTHONPATH
-export PYTHONPATH="/c/Users/$USERNAME/Desktop/proyectos/swarm-intelligence:/c/Users/$USERNAME/Desktop/proyectos/eigenlib"
+export PYTHONPATH="/c/Users/$USERNAME/Desktop/proyectos/$PROJECT_FOLDER:/c/Users/$USERNAME/Desktop/proyectos/eigenlib"
 
 # Activar el entorno virtual
 source ".venv/Scripts/activate"
@@ -19,4 +18,4 @@ export $(grep -v '^#' .env | xargs)
 export PYTHONUNBUFFERED=1
 
 # Ejecutar la CLI de swarmml
-python swarmintelligence/modules/cli.py
+python -c """from eigenlib.utils.auto_cli import AutoCLI; AutoCLI().run()"""
