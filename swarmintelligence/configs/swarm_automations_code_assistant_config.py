@@ -117,6 +117,7 @@ if True:
         """)
     default_config = {
         'file_path': '',
+        'local_base_path': target_project_root,
         'mode': 'read_file',
         'content': '',
     }
