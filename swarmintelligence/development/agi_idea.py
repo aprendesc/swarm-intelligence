@@ -1,7 +1,5 @@
 #AGI 1
 import pandas as pd
-from eigenlib.utils.project_setup import ProjectSetupClass
-ProjectSetupClass(project_folder='swarm-intelligence')
 
 from eigenlib.LLM.llm_client import LLMClientClass
 from eigenlib.LLM.episode import EpisodeClass

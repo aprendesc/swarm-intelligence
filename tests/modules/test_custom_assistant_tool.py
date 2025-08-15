@@ -3,8 +3,7 @@ import unittest
 
 class TestCustomAssistantTool(unittest.TestCase):
     def setUp(self):
-        from eigenlib.utils.project_setup import ProjectSetupClass
-        ProjectSetupClass(project_folder='swarm-intelligence', test_environ=True)
+        pass
 
     def test_custom_assistant_tool(self):
         ################################################################################################################
