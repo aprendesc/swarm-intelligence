@@ -55,7 +55,7 @@ if True:
 
     # SOURCE PARSE TOOL
     tool_name = 'sources_parser_and_summarizer'
-    tool_description = "Tool made for parsing and building summaries of sources, from pdf to web sources. Admits urls to the web or local paths to local documents."
+    tool_description = "Tool made for parsing and building summaries of documents, pdf, websites... Admits urls to the web or local paths to local documents. It also includes the functionality of uploading the content to notion."
     default_config = {
         'parse': True,
         'to_notion': True,
@@ -66,7 +66,7 @@ if True:
         {
             "name": "source_path_or_url",
             "type": "string",
-            "description": "Path or URL of the source that will be parsed summarized and uploaded.",
+            "description": "Local path or URL of the source that will be parsed summarized and uploaded.",
             "required": True,
         },
         {
@@ -90,22 +90,60 @@ if True:
     ]
     sp_tool = MainClassToolAdapter(ToolsMainClass({}).sources_parser_and_summarizer, tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
+    # LOCAL FILE OPERATIONS TOOL
+    tool_name = 'file_operations_tools'
+    tool_description = (
+        "Tool for basic file operations. Supports reading the content of a file "
+        "or writing text into a file. Accepts both local file paths and temporary files. "
+        "Returns the read content or a confirmation message depending on the mode."
+    )
+    default_config = {
+        'file_path': '',
+        'mode': 'read_file',
+        'content': '',
+    }
+    tool_args = [
+        {
+            "name": "file_path",
+            "type": "string",
+            "description": "Full path to the file to read or write.",
+            "required": True,
+        },
+        {
+            "name": "mode",
+            "type": "string",
+            "enum": ["read_file", "write_file"],
+            "description": "Operation mode: 'read_file' to read the file, 'write_file' to overwrite the file with provided content.",
+            "required": True,
+        },
+        {
+            "name": "content",
+            "type": "string",
+            "description": "Content to write to the file. Required if mode is 'write_file'. 'no_content' when mode is 'read_file'.",
+            "required": False,
+        },
+    ]
+    fo_tool = MainClassToolAdapter(ToolsMainClass({}).local_file_operations_tools, tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
+
+
 tools = {
-    'code_interpreter': ci_tool,
     'intelligent_web_search': ws_tool,
-    'sources_parser_and_summarizer': sp_tool
+    'sources_parser_and_summarizer': sp_tool,
+    'code_interpreter': ci_tool,
+    'file_operations_tools': fo_tool,
 }
 update_dict = {
     'hypothesis': """Software developer assistant that can be used as a tool for developing advanced software.""",
     # INITIALIZE
     'assistant_name': assistant_name,
-    'agent_model': 'gpt-5-mini',
+    'agent_model': 'o3',
     'agent_reasoning_effort': 'high',
     'temperature': 1,
     'tools_dict': tools,
     'tool_choice': 'auto',
     #INFERENCE
     'agent_context': f"""
+Y
 # PROJECT MAP
 
 {flat_map}
