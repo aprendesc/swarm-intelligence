@@ -3,7 +3,7 @@ from swarmintelligence.configs.test_config import config as test_config
 """test_assistant/code_assistant"""
 from swarmintelligence.modules.get_project_map import GetProjectMap
 flat_map, tree_map = GetProjectMap().run(r'C:\Users\AlejandroPrendesCabo\Desktop\proyectos\swarm-intelligence')
-assistant_name = 'software_developer_assistant'
+assistant_name = 'personal_assistant'
 """Tools Setup"""
 if True:
     import sys
@@ -33,9 +33,9 @@ if True:
 
     # WEB SEARCH TOOL
     tool_name = 'intelligent_web_search'
-    tool_description = "Makes a deep web search and gets the results."
+    tool_description = """Tool that makes a search query in google, extracts the top n result urls returns the relevant information from those sources based on the query."""
     default_config = {
-        'summarize': True,
+        'summarize': False,
     }
     tool_args = [
         {
@@ -47,7 +47,7 @@ if True:
         {
             "name": "num_results",
             "type": "integer",
-            "description": "Maximum number of results to get with a maximum of 20. Higher number for a deeper search. Default 10",
+            "description": "Maximum number of results to get with a maximum of 20. Higher number for a deeper search. Default 5",
             "required": True,
         },
     ]
@@ -55,7 +55,10 @@ if True:
 
     # SOURCE PARSE TOOL
     tool_name = 'sources_parser_and_summarizer'
-    tool_description = "Tool made for parsing and building summaries of sources, from pdf to web sources. Admits urls to the web or local paths to local documents."
+    tool_description = """Tool made for parsing and building summaries of sources, from pdf to web sources. 
+Admits urls to the web or local paths to local documents.
+The results are uploaded into notion.
+"""
     default_config = {
         'parse': True,
         'to_notion': True,
@@ -105,20 +108,14 @@ update_dict = {
     'tools_dict': tools,
     'tool_choice': 'auto',
     #INFERENCE
-    'agent_context': f"""
-# PROJECT MAP
-
-{flat_map}
-    """,
+    'agent_context': f"""You are a personal assistant that helps the user with any request he makes.""",
     'agent_instructions': """""",
     'steering': """
 # INSTRUCTIONS:
-* You are a high skilled software developer expert in developing clean, efficient, high quality code and solutions for the user's project.
-* Answer always with full solutions.
-* Use any tool needed. You can use the code interpreter to solve the user's requests and instructions.
-* You can search the internet using the intelligent_web_search tool to check for information, documentation, browse webs etc...
-* User can't see tool outputs, you must deliver every relevant information in your answer.
-* Before taking action always plan the best steps to solve the problem, you can use the tools as many times as you need and update your plan based on the new information gathered until the goal is achieved.
+* You have access to several tools to search, summarize info, run code etc... that you can use when needed.
+* Before taking action always plan the best steps to solve the query.
+* Always confirm the plan with the user before taking action that can take time and work.
+* Give always short and direct final answer with condensed relevant information unless you are explicitly required to give long answers.
 """,
     'img': None,
     'user_message': 'Ejecuta el codigo de factorial de 12 y dime el resultado.',

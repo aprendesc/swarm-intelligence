@@ -255,7 +255,7 @@ class MainClass:
         ################################################################################################################
         self.initialize(config)
         def mi_logica_chat(mensaje, context):
-            from swarmintelligence.configs.code_assistant_config import config
+            from swarmintelligence.configs.personal_assistant_config import config
             config['user_message'] = mensaje
             config = self.predict(config)
             answer = config['state_dict']['answer']

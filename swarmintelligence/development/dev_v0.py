@@ -1,56 +1,55 @@
 """Loader Script"""
 if True:
-    import sys
-    import os
-    from dotenv import load_dotenv
-    ####################################################################################################################
-    project_folder = 'swarm-intelligence'
-    base_path = f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos'
-    ####################################################################################################################
-    load_dotenv()
-    os.getcwd()
-    sys.path.extend([
-        os.path.join(base_path, 'swarm-ml'),
-        os.path.join(base_path, 'swarm-intelligence'),
-        os.path.join(base_path, 'swarm-automations'),
-        os.path.join(base_path, 'swarm-compute'),
-        os.path.join(base_path, 'eigenlib')
-    ])
-    os.environ['PROJECT_NAME'] = project_folder.replace('-', '')
-    os.environ['PROJECT_FOLDER'] = project_folder
-    os.chdir(os.path.join(base_path, project_folder))
+    def setup():
+        import sys
+        import os
+        from dotenv import load_dotenv
+        ####################################################################################################################
+        project_folder = 'swarm-intelligence'
+        base_path = f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos'
+        ####################################################################################################################
+        load_dotenv()
+        os.getcwd()
+        sys.path.extend([
+            os.path.join(base_path, 'swarm-ml'),
+            os.path.join(base_path, 'swarm-intelligence'),
+            os.path.join(base_path, 'swarm-automations'),
+            os.path.join(base_path, 'swarm-compute'),
+            os.path.join(base_path, 'eigenlib')
+        ])
+        os.environ['PROJECT_NAME'] = project_folder.replace('-', '')
+        os.environ['PROJECT_FOLDER'] = project_folder
+        os.chdir(os.path.join(base_path, project_folder))
+    setup()
+
+    from eigenlib.utils.testing_utils import TestUtils
+    _, coverage = TestUtils().get_coverage('./' + os.environ['PROJECT_NAME'])
+    assert int(coverage) == 100
+
 
 ########################################################################################################################
 """Test Coverage"""
 if True:
-    from eigenlib.utils.testing_utils import TestUtils
-
-    _, coverage = TestUtils().get_coverage('./' + os.environ['PROJECT_NAME'])
-    assert int(coverage) == 100
 
 ########################################################################################################################
 """Launch main"""
 if False:
     from swarmintelligence.main import MainClass
-    from swarmintelligence.configs.test_config import config
+    from swarmintelligence.configs.personal_assistant_config import config
     main = MainClass(config)
     main.initialize(config)
-    main.tools_setup(config)
-    main.dataset_generation(config)
-    main.dataset_labeling(config)
-    main.train(config)
-    main.eval(config)
+    #main.tools_setup(config)
+    #main.dataset_generation(config)
+    #main.dataset_labeling(config)
+    #main.train(config)
+    #main.eval(config)
+    config['user_message'] = """
+Usa el sumarizador sobre esta fuente:
+https://arxiv.org/pdf/2506.21734
+Sube a notion un resumen de 5 partes."""
     main.predict(config)
-    main.telegram_chatbot_run(config)
+    #main.telegram_chatbot_run(config)
 
-########################################################################################################################
-"""Run all tests"""
-if False:
-    import unittest
-    loader = unittest.TestLoader()
-    suite = loader.discover(start_dir='./tests/modules', pattern='test_*.py')
-    runner = unittest.TextTestRunner(verbosity=2)
-    result = runner.run(suite)
 
 ########################################################################################################################
 """Launch dummy development code."""
