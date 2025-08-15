@@ -1,21 +1,26 @@
 from swarmintelligence.configs.test_config import config as test_config
+import os
 
 """test_assistant/code_assistant"""
+########################################################################################################################
+base_path = f'C:\\Users\\{os.environ["USERNAME"]}\\Desktop\\proyectos'
+target_project_folder = 'swarm-intelligence'
+########################################################################################################################
+target_project_root = os.path.join(base_path, target_project_folder)
 from swarmintelligence.modules.get_project_map import GetProjectMap
-flat_map, tree_map = GetProjectMap().run(r'C:\Users\AlejandroPrendesCabo\Desktop\proyectos\swarm-intelligence')
+flat_map, tree_map = GetProjectMap().run(target_project_root)
 assistant_name = 'software_developer_assistant'
 """Tools Setup"""
 if True:
     import sys
     import os
-    base_path = f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos'
     sys.path.extend([os.path.join(base_path, 'swarm-automations')])
     from swarmautomations.modules.main_class_tool_adapter import MainClassToolAdapter
     from swarmautomations.main import MainClass as ToolsMainClass
     # CODE INTERPRETER TOOL SETUP
     tool_name = 'code_interpreter'
     tool_description = """Code interpreter for expert software development in the environment of the project."""
-    default_config = {}
+    default_config = {'interpreter_path': os.path.join(base_path, target_project_folder, '.venv\Scripts\python.exe')}
     tool_args = [
         {
             "name": "programming_language", "type": "string",
@@ -92,11 +97,9 @@ if True:
 
     # LOCAL FILE OPERATIONS TOOL
     tool_name = 'file_operations_tools'
-    tool_description = (
-        "Tool for basic file operations. Supports reading the content of a file "
+    tool_description = ("Tool for basic file operations. Supports reading the content of a file "
         "or writing text into a file. Accepts both local file paths and temporary files. "
-        "Returns the read content or a confirmation message depending on the mode."
-    )
+        "Returns the read content or a confirmation message depending on the mode.")
     default_config = {
         'file_path': '',
         'mode': 'read_file',
@@ -125,12 +128,24 @@ if True:
     ]
     fo_tool = MainClassToolAdapter(ToolsMainClass({}).local_file_operations_tools, tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
+    # GET PROJECT MAP TOOL
+    tool_name = 'get_project_map'
+    tool_description = ("Tool for scanning and mapping the file structure of the project directory. "
+        "It traverses all subdirectories starting from the root dir and returns a list of file paths "
+        "Useful for exploring the project."
+        "When launched it simply gets the current structure of files and folders of the project. No arguments needed.")
+    default_config = {
+        'root_path': target_project_root,
+    }
+    tool_args = []
+    pm_tool = MainClassToolAdapter(ToolsMainClass({}).get_project_map, tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
 tools = {
     'intelligent_web_search': ws_tool,
     'sources_parser_and_summarizer': sp_tool,
     'code_interpreter': ci_tool,
     'file_operations_tools': fo_tool,
+    'get_project_map': pm_tool,
 }
 update_dict = {
     'hypothesis': """Software developer assistant that can be used as a tool for developing advanced software.""",
