@@ -33,5 +33,3 @@ class TestMyClass(unittest.TestCase):
     def test_run(self):
         mc = MyClass()
         mc.run()
-
-'Hola, por favor, creame un module llamada hello_world que implemente la clase hola mundo y su correspondiente test y hazlo todo en el mismo estilo con el que yo suelo programar.'
