@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.extend([os.path.join(f'C:\\Users\\{os.environ["USERNAME"]}\\Desktop\\proyectos,swarm-automations')])
+sys.path.extend([os.path.join(f'C:\\Users\\{os.environ["USERNAME"]}\\Desktop\\proyectos','swarm-automations')])
 from swarmautomations.modules.main_class_tool_adapter import MainClassToolAdapter
 from swarmautomations.main import MainClass as ToolsMainClass
 
@@ -8,7 +8,7 @@ from swarmautomations.main import MainClass as ToolsMainClass
 assistant_name = 'software_developer_assistant'
 ########################################################################################################################
 base_path = f'C:\\Users\\{os.environ["USERNAME"]}\\Desktop\\proyectos'
-target_project_folder = 'swarm-intelligence'
+target_project_folder = 'swarm-automations'
 target_path_dirs = [
                         os.path.join(base_path, target_project_folder),
                         os.path.join(base_path, 'eigenlib')
@@ -208,6 +208,38 @@ tool_args = [
 ]
 br_tool = MainClassToolAdapter(ToolsMainClass({}).browse_url, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
+# VECTOR DATABASE
+tool_name = 'vector_database'
+tool_description = "Tool that browses a list of URLs and extracts the content or a summary for each one."
+default_config = {
+    'summarize_search': False,
+}
+tool_args = [
+    {
+        "name": "urls",
+        "type": "array",
+        "items": {
+            "type": "string"
+        },
+        "description": "List of URLs to browse.",
+        "required": True,
+    },
+    {
+        "name": "query",
+        "type": "string",
+        "description": "Original user query (used only when summarising).",
+        "required": False,
+    },
+    {
+        "name": "summarize_search",
+        "type": "boolean",
+        "description": "True to summarise the browsed content. Default False.",
+        "required": False,
+    },
+]
+vdb_tool = MainClassToolAdapter(ToolsMainClass({}).vector_database, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
+
+
 tools = {
     'code_interpreter': ci_tool,
     'sources_parser_and_summarizer': sp_tool,
@@ -242,11 +274,7 @@ config = {
     'use_guidance': True,
 
     # -------- VDB / SEEDS -------------------------------------------------------------
-    'raw_sources': [],
     'seeds_dataset_name': assistant_name + '_SEEDS',
-    'seeds_chunking_threshold': 900,
-    'vdb_name': assistant_name + '_VDB',
-    'vdb_chunking_threshold': 150,
 
     # -------- GENERATIVE SETTINGS -----------------------------------------------------
     'gen_input_dataset_name': assistant_name + '_SEEDS',

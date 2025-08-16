@@ -1,8 +1,8 @@
 
 """test_assistant"""
 assistant_name = 'base_assistant'
-from eigenlib.LLM.vector_database_tool import VDBToolClass
-tools = {'sources_search_engine': VDBToolClass(vdb_name=assistant_name + '_VDB')}
+#from eigenlib.LLM.vector_database_tool import VDBToolClass
+tools = {'sources_search_engine': ''}#VDBToolClass(vdb_name=assistant_name + '_VDB')}
 config = {
     'hypothesis': """Test assistant.""",
     'use_cloud': False,
