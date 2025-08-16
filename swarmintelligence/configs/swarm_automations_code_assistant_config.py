@@ -161,11 +161,13 @@ if True:
     tool_name = 'get_files_map'
     tool_description = ("Tool for scanning and mapping the file structure of a given directory. "
         "It traverses all subdirectories starting from the root dir and returns a list of file paths "
-        "Useful for exploring the project."
+        "Useful for exploring projects.",
+        "To access other projects do: ../name-of-project/name_of_folder, eg: ../eigenlib/utils"
         "When launched it simply gets the current structure of files and folders of the project. No arguments needed.")
     default_config = {
-        'base_path': target_project_root,
-        'root_dir': '.'
+
+        'map_base_path': target_project_cwd,
+        'map_root_dir': './',
     }
     tool_args = [
         {
