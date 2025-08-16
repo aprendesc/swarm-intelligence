@@ -1,25 +1,32 @@
-from swarmintelligence.configs.test_config import config as test_config
 import os
+import sys
 
 """test_assistant/code_assistant"""
+assistant_name = 'software_developer_assistant'
 ########################################################################################################################
+from swarmintelligence.configs.test_config import config as test_config
 base_path = f'C:\\Users\\{os.environ["USERNAME"]}\\Desktop\\proyectos'
 target_project_folder = 'swarm-automations'
-target_project_name = target_project_folder.replace('-', '')
+target_path_dirs = [
+                        os.path.join(base_path, target_project_folder),
+                        os.path.join(base_path, 'eigenlib')
+                ]
 ########################################################################################################################
-target_project_root = os.path.join(base_path, target_project_folder)
-assistant_name = 'software_developer_assistant'
+target_project_name = target_project_folder.replace('-', '')
+target_project_cwd = os.path.join(base_path, target_project_folder)
 """Tools Setup"""
 if True:
-    import sys
-    import os
     sys.path.extend([os.path.join(base_path, 'swarm-automations')])
     from swarmautomations.modules.main_class_tool_adapter import MainClassToolAdapter
     from swarmautomations.main import MainClass as ToolsMainClass
     # CODE INTERPRETER TOOL SETUP
     tool_name = 'code_interpreter'
     tool_description = """Code interpreter for expert software development in the environment of the project."""
-    default_config = {'interpreter_path': os.path.join(base_path, target_project_folder, '.venv\Scripts\python.exe')}
+    default_config = {
+        'interpreter_launcher': os.path.join(target_project_cwd, '.venv\Scripts\python.exe'),
+        'interpreter_cwd': target_project_cwd,
+        'interpreter_path_dirs': target_path_dirs,
+    }
     tool_args = [
         {
             "name": "programming_language", "type": "string",
@@ -99,8 +106,17 @@ if True:
     tool_description = ("Tool for basic file operations. Supports reading the content of a file "
         "or writing text into a file. Accepts both local file paths and temporary files. "
         "Returns the read content or a confirmation message depending on the mode."
-        "The basic structure of the project is: "
+        "The basic structure of the project and developing libraries is: "
         f"""
+# EIGENLIB LIBRARY
+* This is a general purpose library that can be used in any project and contains modules and utilities useful for different projects.
+../eigenlib/eigenlib/image # Modules useful for image manipulation.
+../eigenlib/eigenlib/audio # Modules useful for audio manipulation.
+../eigenlib/eigenlib/ML # Modules useful for building modular machine learning models.
+../eigenlib/eigenlib/LLM # Modules useful for developing gen AI LLM applications.
+../eigenlib/eigenlib/utils # Contain low level utilities for building projects. Very important, contains many low level modules to build projects.
+
+# {target_project_name.upper()} LIBRARY
 ./data/raw #Storage of raw sources.
 ./data/curated #Storage of curated sources. Used as feature store.
 ./data/processed # Storage of processed sources.
@@ -116,10 +132,7 @@ if True:
 ./tests/modules # Test for testing the modules. One test for each module in the project folder.
         """)
     default_config = {
-        'file_path': '',
-        'local_base_path': target_project_root,
-        'mode': 'read_file',
-        'content': '',
+        'local_base_path': base_path,
     }
     tool_args = [
         {
@@ -164,8 +177,63 @@ if True:
     ]
     pm_tool = MainClassToolAdapter(ToolsMainClass({}).get_files_map, tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
+    # GOOGLE SEARCH TOOL ADAPTER
+    tool_name = 'google_search'
+    tool_description = "Tool that performs a Google search and returns a list with the resulting URLs."
+    default_config = {
+        'num_results': 10,
+    }
+    tool_args = [
+        {
+            "name": "query",
+            "type": "string",
+            "description": "Text of the query for the web search.",
+            "required": True,
+        },
+        {
+            "name": "num_results",
+            "type": "integer",
+            "description": "Maximum number of results to retrieve (max 20). Default 10.",
+            "required": False,
+        },
+    ]
+    gs_tool = MainClassToolAdapter(ToolsMainClass({}).google_search, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, )
+
+    # BROWSE URL TOOL ADAPTER
+    tool_name = 'browse_url'
+    tool_description = "Tool that browses a list of URLs and extracts the content or a summary for each one."
+    default_config = {
+        'summarize_search': False,
+    }
+    tool_args = [
+        {
+            "name": "urls",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "List of URLs to browse.",
+            "required": True,
+        },
+        {
+            "name": "query",
+            "type": "string",
+            "description": "Original user query (used only when summarising).",
+            "required": False,
+        },
+        {
+            "name": "summarize_search",
+            "type": "boolean",
+            "description": "True to summarise the browsed content. Default False.",
+            "required": False,
+        },
+    ]
+    br_tool = MainClassToolAdapter(ToolsMainClass({}).browse_url, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
+
 tools = {
-    'intelligent_web_search': ws_tool,
+    #'intelligent_web_search': ws_tool,
+    'google_search': gs_tool,
+    'browse_url': br_tool,
     'sources_parser_and_summarizer': sp_tool,
     'code_interpreter': ci_tool,
     'file_operations_tools': fo_tool,
