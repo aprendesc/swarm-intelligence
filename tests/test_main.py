@@ -27,6 +27,13 @@ class TestMainClass(unittest.TestCase):
 
     def test_predict(self):
         self.main.initialize(config)
+        #config['user_message'] = 'Lets work on improving fine tuning of models. First of all, identify in eigenlib the file llm_client'
+        #updated_config = self.main.predict(config)
+        #print(updated_config['state_dict']['answer'])
+        config['user_message'] = 'Run a basic hola mundo code and give me the answer'
+        updated_config = self.main.predict(config)
+        print(updated_config['state_dict']['answer'])
+        config['user_message'] = 'Search in the internet the F22 raptor twr'
         updated_config = self.main.predict(config)
         print(updated_config['state_dict']['answer'])
 
