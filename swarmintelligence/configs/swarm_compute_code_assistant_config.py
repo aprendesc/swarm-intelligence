@@ -132,7 +132,7 @@ if True:
 ./tests/modules # Test for testing the modules. One test for each module in the project folder.
         """)
     default_config = {
-        'local_base_path': base_path,
+        'files_cwd': target_project_cwd,
     }
     tool_args = [
         {
@@ -266,7 +266,7 @@ Project name: {target_project_folder}
 * Before taking action always plan the best steps to solve the problem, you can use the tools as many times as you need and update your plan based on the new information gathered until the goal is achieved.
 """,
     'img': None,
-    'user_message': 'Ejecuta el codigo de factorial de 12 y dime el resultado.',
+    'user_message': 'Lets work on improving fine tuning of models. First of all, identify in eigenlib the file llm_client',
 }
 config = test_config | update_dict
 ########################################################################################################################
