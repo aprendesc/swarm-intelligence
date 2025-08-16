@@ -203,7 +203,9 @@ if True:
     # BROWSE URL TOOL ADAPTER
     tool_name = 'browse_url'
     tool_description = "Tool that browses a list of URLs and extracts the content or a summary for each one."
-    default_config = {}
+    default_config = {
+        'summarize_search': False,
+    }
     tool_args = [
         {
             "name": "urls",
@@ -213,7 +215,19 @@ if True:
             },
             "description": "List of URLs to browse.",
             "required": True,
-        }
+        },
+        {
+            "name": "query",
+            "type": "string",
+            "description": "Original user query (used only when summarising).",
+            "required": False,
+        },
+        {
+            "name": "summarize_search",
+            "type": "boolean",
+            "description": "True to summarise the browsed content. Default False.",
+            "required": False,
+        },
     ]
     br_tool = MainClassToolAdapter(ToolsMainClass({}).browse_url, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
