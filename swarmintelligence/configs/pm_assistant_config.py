@@ -1,11 +1,11 @@
 from swarmintelligence.configs.test_config import config as test_config
-from swarmintelligence.configs.code_assistant_config import config as code_assistant_config
+from swarmintelligence.configs.swarm_intelligence_code_assistant_config import config
 
 """test_assistant/project_manager_assistant"""
 assistant_name = 'project_manager_assistant'
 from swarmintelligence.modules.custom_assistant_tool import CustomAssistantTool
 tools = {
-    'software_developer_assistant': CustomAssistantTool(code_assistant_config, tool_description='This tool is a software engineer from your team as manager.'),
+    'software_developer_assistant': CustomAssistantTool(config, tool_description='This tool is a software engineer from your team as manager.'),
 }
 update_dict = {
     'hypothesis': """This assistant is a project manager..""",

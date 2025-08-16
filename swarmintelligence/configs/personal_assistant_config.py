@@ -3,7 +3,7 @@ from swarmintelligence.configs.test_config import config as test_config
 """test_assistant/code_assistant"""
 from swarmintelligence.modules.get_project_map import GetProjectMap
 flat_map, tree_map = GetProjectMap().run(r'C:\Users\AlejandroPrendesCabo\Desktop\proyectos\swarm-intelligence')
-assistant_name = 'personal_assistant'
+assistant_name = 'swarm-intelligence'
 """Tools Setup"""
 if True:
     import sys
