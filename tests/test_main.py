@@ -10,9 +10,6 @@ class TestMainClass(unittest.TestCase):
     def test_initialize(self):
         updated_config = self.main.initialize(config)
 
-    def test_tools_setup(self):
-        updated_config = self.main.tools_setup(config)
-
     def test_dataset_generation(self):
         updated_config = self.main.dataset_generation(config)
 
@@ -27,6 +24,8 @@ class TestMainClass(unittest.TestCase):
 
     def test_predict(self):
         self.main.initialize(config)
+        config['user_message'] = 'hazme un rag sobre la qkv del tranformer.'
+        updated_config = self.main.predict(config)
         config['user_message'] = 'Lets work on improving fine tuning of models. First of all, identify in eigenlib the file llm_client'
         updated_config = self.main.predict(config)
         print(updated_config['state_dict']['answer'])

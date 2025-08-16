@@ -209,44 +209,39 @@ tool_args = [
 br_tool = MainClassToolAdapter(ToolsMainClass({}).browse_url, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 # VECTOR DATABASE
-tool_name = 'vector_database'
-tool_description = "Tool that browses a list of URLs and extracts the content or a summary for each one."
+tool_name = 'rag_vector_database'
+vdb_name = 'test_VDB_tmp'
+tool_description = "Tool to send queries and make retrieval augmented generation."
 default_config = {
-    'summarize_search': False,
-}
+            'vdb_mode': 'retrieval',
+            'raw_sources': [],
+            'seeds_chunking_threshold': 900,
+            'vdb_name': vdb_name,
+            'vdb_chunking_threshold': 150,
+            'vdb_query': None,
+            'vdb_wd': 'C:/Users/AlejandroPrendesCabo/Desktop/proyectos/swarm-automations',
+            'lang': 'eng',
+        }
 tool_args = [
     {
-        "name": "urls",
-        "type": "array",
-        "items": {
-            "type": "string"
-        },
-        "description": "List of URLs to browse.",
-        "required": True,
-    },
-    {
-        "name": "query",
+        "name": "vdb_query",
         "type": "string",
-        "description": "Original user query (used only when summarising).",
-        "required": False,
-    },
-    {
-        "name": "summarize_search",
-        "type": "boolean",
-        "description": "True to summarise the browsed content. Default False.",
-        "required": False,
+        "description": "Query to make the retrieval of relevant information. Use several search terms semantically similar to a possible answer.",
+        "required": True,
     },
 ]
 vdb_tool = MainClassToolAdapter(ToolsMainClass({}).vector_database, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 
 tools = {
-    'code_interpreter': ci_tool,
-    'sources_parser_and_summarizer': sp_tool,
-    'file_operations_tools': fo_tool,
-    'get_files_map': pm_tool,
-    'google_search': gs_tool,
-    'browse_url': br_tool,
+    #'code_interpreter': ci_tool,
+    #'sources_parser_and_summarizer': sp_tool,
+    #'file_operations_tools': fo_tool,
+    #'get_files_map': pm_tool,
+    #'google_search': gs_tool,
+    #'browse_url': br_tool,
+    'rag_vector_database': vdb_tool,
+
 }
 
 config = {
