@@ -234,12 +234,12 @@ vdb_tool = MainClassToolAdapter(ToolsMainClass({}).vector_database, tool_name=to
 
 
 tools = {
-    #'code_interpreter': ci_tool,
-    #'sources_parser_and_summarizer': sp_tool,
-    #'file_operations_tools': fo_tool,
-    #'get_files_map': pm_tool,
-    #'google_search': gs_tool,
-    #'browse_url': br_tool,
+    'code_interpreter': ci_tool,
+    'sources_parser_and_summarizer': sp_tool,
+    'file_operations_tools': fo_tool,
+    'get_files_map': pm_tool,
+    'google_search': gs_tool,
+    'browse_url': br_tool,
     'rag_vector_database': vdb_tool,
 
 }
