@@ -1,5 +1,5 @@
 from swarmintelligence.main import MainClass
-from swarmintelligence.configs.swarm_intelligence_code_assistant_config import config
+from swarmintelligence.configs.personal_assistant_config import config
 import unittest
 
 class TestMainClass(unittest.TestCase):
