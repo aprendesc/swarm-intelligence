@@ -28,7 +28,6 @@ if True:
     os.environ['PROJECT_FOLDER'] = project_folder
     os.chdir(os.path.join(base_path, project_folder))
 
-
 class FrontEndClass:
     def __init__(self):
         pass
@@ -92,6 +91,10 @@ class FrontEndClass:
                 height = MAX_HEIGHT
             with st.container(height=height):
                 st.text(text)
+
+            from eigenlib.utils.alert_utils import AlertsUtils
+            import os
+            AlertsUtils().run("test_message", bot_token=os.environ["TELEGRAM_BOT_TOKEN_2"], bot_chatID=int(os.environ["TELEGRAM_CHAT_ID_2"]))
 
         def render_dataset_viewer():
             """Muestra la interfaz de visualización y edición de datasets."""
