@@ -6,7 +6,7 @@ export PROJECT_FOLDER="swarm-intelligence"
 cd "C:/Users/$USERNAME/Desktop/proyectos/$PROJECT_FOLDER" || exit
 
 # Configurar PYTHONPATH
-export PYTHONPATH="/c/Users/$USERNAME/Desktop/proyectos/$PROJECT_FOLDER:/c/Users/$USERNAME/Desktop/proyectos/eigenlib"
+export PYTHONPATH="/c/Users/$USERNAME/Desktop/proyectos/$PROJECT_FOLDER:/c/Users/$USERNAME/Desktop/proyectos/eigenlib:/c/Users/$USERNAME/Desktop/proyectos/swarm-compute"
 
 # Activar el entorno virtual
 source ".venv/Scripts/activate"

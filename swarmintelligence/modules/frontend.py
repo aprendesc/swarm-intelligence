@@ -3,11 +3,15 @@ import importlib
 import streamlit as st
 import pickle
 import datetime
-import inspect
 from pathlib import Path
 from eigenlib.utils.data_utils import DataUtilsClass
 from swarmintelligence.main import MainClass
-if True:
+from eigenlib.utils.project_setup import ProjectSetup
+from eigenlib.utils.alert_utils import AlertsUtils
+import os
+ProjectSetup().init(path_dirs=[], working_dir=f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos/swarm-intelligence', project_folder='swarm-intelligence')
+
+if False:
     import sys
     import os
     from dotenv import load_dotenv
@@ -45,10 +49,6 @@ class FrontEndClass:
             base_path = f'./{os.environ["PROJECT_NAME"]}/configs'
             configs = [c for c in os.listdir(base_path) if 'config' in c.lower()]
             return configs
-
-        def get_all_raw_files(directory: Path):
-            if not directory.exists(): return []
-            return [f.name for f in directory.iterdir() if f.is_file()]
 
         def get_dataset_directories(directory: Path, identifier: str):
             if not directory.exists(): return []
@@ -92,10 +92,6 @@ class FrontEndClass:
             with st.container(height=height):
                 st.text(text)
 
-            from eigenlib.utils.alert_utils import AlertsUtils
-            import os
-            AlertsUtils().run("test_message", bot_token=os.environ["TELEGRAM_BOT_TOKEN_2"], bot_chatID=int(os.environ["TELEGRAM_CHAT_ID_2"]))
-
         def render_dataset_viewer():
             """Muestra la interfaz de visualización y edición de datasets."""
             info = st.session_state.viewing_dataset_info
@@ -132,53 +128,6 @@ class FrontEndClass:
                 st.error(f"Ocurrió un error: {e}")
                 import traceback
                 st.code(traceback.format_exc())
-
-        def render_prompt_editor():
-            """Editor de prompts de agente y entorno."""
-            st.header("Editor de Prompts para Generación y Chat")
-            st.caption("Modifica los prompts. Desmarca 'Activar' para poner `None`.")
-            agent_col, env_col = st.columns(2)
-            prompt_keys = {
-                'agent': ['agent_context', 'agent_source', 'agent_image',
-                          'agent_instructions', 'agent_query'],
-                'env':   ['env_context', 'env_source', 'env_image',
-                          'env_instructions', 'env_query']
-            }
-            with agent_col:
-                st.subheader("🤖 Prompts del Agente")
-                st.info("Define comportamiento del agente.")
-                for key in prompt_keys['agent']:
-                    with st.container():
-                        is_active = st.checkbox(
-                            f"Activar `{key}`",
-                            value=(st.session_state.config.get(key) is not None),
-                            key=f"cb_{key}")
-                        current = str(st.session_state.config.get(key) or '')
-                        st.text_area(f"`{key}`:", value=current,
-                                     height=120, key=f"ta_{key}",
-                                     disabled=not is_active)
-            with env_col:
-                st.subheader("🌍 Prompts del Entorno")
-                st.info("Define comportamiento del entorno.")
-                for key in prompt_keys['env']:
-                    with st.container():
-                        is_active = st.checkbox(
-                            f"Activar `{key}`",
-                            value=(st.session_state.config.get(key) is not None),
-                            key=f"cb_{key}")
-                        current = str(st.session_state.config.get(key) or '')
-                        st.text_area(f"`{key}`:", value=current,
-                                     height=120, key=f"ta_{key}",
-                                     disabled=not is_active)
-            st.divider()
-            if st.button("💾 Aplicar Cambios en Prompts"):
-                with st.spinner("Aplicando..."):
-                    for key in prompt_keys['agent'] + prompt_keys['env']:
-                        if st.session_state[f"cb_{key}"]:
-                            st.session_state.config[key] = st.session_state[f"ta_{key}"]
-                        else:
-                            st.session_state.config[key] = None
-                st.success("Prompts actualizados. Reinicia el chat para que surtan efecto.")
 
         st.set_page_config(page_title="Personal Assistant", layout="wide", initial_sidebar_state="expanded")
         st.title("🧠 Asistente Personal")
@@ -573,6 +522,8 @@ class FrontEndClass:
                 with st.spinner("Pensando..."):
                     try:
                         updated = st.session_state.main_class.predict(call_cfg)
+                        AlertsUtils().run("Bot finished thinking.", bot_token=os.environ["TELEGRAM_BOT_TOKEN_2"], bot_chatID=int(os.environ["TELEGRAM_CHAT_ID_2"]))
+
                     except Exception as e:
                         st.error(f"Error procesando tu solicitud: {e}")
                         import traceback; st.code(traceback.format_exc())

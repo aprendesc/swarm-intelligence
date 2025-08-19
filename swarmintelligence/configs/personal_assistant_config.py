@@ -1,31 +1,15 @@
-import os
-import sys
-sys.path.extend([os.path.join(f'C:\\Users\\{os.environ["USERNAME"]}\\Desktop\\proyectos','swarm-automations')])
-from swarmautomations.modules.main_class_tool_adapter import MainClassToolAdapter
-from swarmautomations.main import MainClass as ToolsMainClass
-
-"""test_assistant/code_assistant"""
-assistant_name = 'software_developer_assistant'
+from swarmintelligence.modules.server_tool import ServerTool
 ########################################################################################################################
-base_path = f'C:\\Users\\{os.environ["USERNAME"]}\\Desktop\\proyectos'
-target_project_folder = 'swarm-automations'
-target_path_dirs = [
-                        os.path.join(base_path, target_project_folder),
-                        os.path.join(base_path, 'eigenlib')
-                ]
+assistant_name = 'software_developer_assistant'
+target_project_folder = 'swarm-intelligence'
 ########################################################################################################################
 target_project_name = target_project_folder.replace('-', '')
-target_project_cwd = os.path.join(base_path, target_project_folder)
 """Tools Setup"""
 
 # CODE INTERPRETER TOOL SETUP
 tool_name = 'code_interpreter'
 tool_description = """Code interpreter for expert software development in the environment of the project."""
-default_config = {
-    'interpreter_launcher': os.path.join(target_project_cwd, '.venv\Scripts\python.exe'),
-    'interpreter_cwd': target_project_cwd,
-    'interpreter_path_dirs': target_path_dirs,
-}
+default_config = {}
 tool_args = [
     {
         "name": "programming_language", "type": "string",
@@ -39,7 +23,7 @@ tool_args = [
         "required": True,
     },
 ]
-ci_tool = MainClassToolAdapter(ToolsMainClass({}).code_interpreter, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
+ci_tool = ServerTool('code_interpreter', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 # SOURCE PARSE TOOL
 tool_name = 'sources_parser_and_summarizer'
@@ -76,7 +60,7 @@ tool_args = [
         "required": True,
     },
 ]
-sp_tool = MainClassToolAdapter(ToolsMainClass({}).sources_parser_and_summarizer, tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
+sp_tool = ServerTool('sources_parser_and_summarizer', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
 # LOCAL FILE OPERATIONS TOOL
 tool_name = 'file_operations_tools'
@@ -108,9 +92,7 @@ tool_description = ("Tool for basic file operations. Supports reading the conten
 ./tests/test_main.py #T est module of the main script.
 ./tests/modules # Test for testing the modules. One test for each module in the project folder.
     """)
-default_config = {
-    'files_cwd': target_project_cwd,
-}
+default_config = {}
 tool_args = [
     {
         "name": "file_path",
@@ -132,7 +114,7 @@ tool_args = [
         "required": False,
     },
 ]
-fo_tool = MainClassToolAdapter(ToolsMainClass({}).local_file_operations_tools, tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
+fo_tool = ServerTool('local_file_operations_tools', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
 # GET FILES MAP TOOL
 tool_name = 'get_files_map'
@@ -141,10 +123,7 @@ tool_description = ("Tool for scanning and mapping the file structure of a given
     "Useful for exploring projects."
     "To access other projects do: ../name-of-project/name_of_folder, eg: ../eigenlib/utils"
     "When launched it simply gets the current structure of files and folders of the project. No arguments needed.")
-default_config = {
-    'map_base_path': target_project_cwd,
-    'map_root_dir': './',
-}
+default_config = {}
 tool_args = [
     {
         "name": "map_root_dir",
@@ -153,7 +132,7 @@ tool_args = [
         "required": True,
     },
 ]
-pm_tool = MainClassToolAdapter(ToolsMainClass({}).get_files_map, tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
+pm_tool = ServerTool('get_files_map', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
 # GOOGLE SEARCH TOOL ADAPTER
 tool_name = 'google_search'
@@ -175,7 +154,7 @@ tool_args = [
         "required": False,
     },
 ]
-gs_tool = MainClassToolAdapter(ToolsMainClass({}).google_search, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, )
+gs_tool = ServerTool('google_search', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, )
 
 # BROWSE URL TOOL ADAPTER
 tool_name = 'browse_url'
@@ -206,7 +185,7 @@ tool_args = [
         "required": False,
     },
 ]
-br_tool = MainClassToolAdapter(ToolsMainClass({}).browse_url, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
+br_tool = ServerTool('browse_url', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 # VECTOR DATABASE
 tool_name = 'rag_vector_database'
@@ -230,7 +209,7 @@ tool_args = [
         "required": True,
     },
 ]
-vdb_tool = MainClassToolAdapter(ToolsMainClass({}).vector_database, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
+vdb_tool = ServerTool('vector_database', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 tools = {
     'code_interpreter': ci_tool,
@@ -241,7 +220,6 @@ tools = {
     'browse_url': br_tool,
     #'rag_vector_database': vdb_tool,
 }
-
 config = {
     # -------- META --------------------------------------------------------------------
     'hypothesis': """Software developer assistant that can be used as a tool for developing advanced software.""",
@@ -332,3 +310,5 @@ Given the conversation so far, evaluate the assistant response on correctness an
     'user_message': 'Lets work on improving fine tuning of models. First of all, identify in eigenlib the file llm_client',
 }
 ########################################################################################################################
+
+

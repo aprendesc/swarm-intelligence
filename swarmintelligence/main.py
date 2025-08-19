@@ -243,6 +243,7 @@ class MainClass:
         bot = TelegramChatbotClass(BOT_TOKEN, mi_logica_chat)
         bot.run()
 
+    @use_endpoint
     def launch_front(self, config):
         import os
         import subprocess
@@ -251,6 +252,7 @@ class MainClass:
         ################################################################################################################
         file = os.path.join(os.environ['PROJECT_ROOT'], f'swarmintelligence/modules/frontend.py')
         eigenlib_root = os.environ["PROJECT_ROOT"].replace(os.environ['PROJECT_DIR'], 'eigenlib')
-        command = f'set PYTHONPATH={os.environ["PROJECT_ROOT"]};{eigenlib_root} && streamlit run ' + file
+        swarm_compute_root = os.environ["PROJECT_ROOT"].replace(os.environ['PROJECT_DIR'], 'swarm-compute')
+        command = f'set PYTHONPATH={os.environ["PROJECT_ROOT"]};{eigenlib_root};{swarm_compute_root} && streamlit run ' + file
         subprocess.run(command, shell=True)
         return config
