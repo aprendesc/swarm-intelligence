@@ -232,7 +232,6 @@ tool_args = [
 ]
 vdb_tool = MainClassToolAdapter(ToolsMainClass({}).vector_database, tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
-
 tools = {
     'code_interpreter': ci_tool,
     'sources_parser_and_summarizer': sp_tool,
@@ -240,8 +239,7 @@ tools = {
     'get_files_map': pm_tool,
     'google_search': gs_tool,
     'browse_url': br_tool,
-    'rag_vector_database': vdb_tool,
-
+    #'rag_vector_database': vdb_tool,
 }
 
 config = {
