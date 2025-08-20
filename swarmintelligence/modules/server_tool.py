@@ -18,7 +18,7 @@ class ServerTool:
             sc_config = {
                 'mode': 'client',
                 'master_address': 'tcp://localhost:5005',
-                'password': 'internal_password',
+                'password': 'internal_pass',
                 'node_name': 'client_node',
                 'node_method': None,
                 'address_node': config['selected_environment'],

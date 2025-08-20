@@ -2,7 +2,7 @@ from swarmintelligence.modules.server_tool import ServerTool
 ########################################################################################################################
 assistant_name = 'software_developer_assistant'
 target_project_folder = 'swarm-intelligence'
-environments = ["swarm-intelligence", "swarm-automations", 'swarm-ml', 'swarm-compute', 'eigenlib']
+environments = ["jedipoc", "swarmintelligence", "swarmautomations", 'swarmml', 'swarmcompute', 'eigenlib']
 address_node = 'project_dev_node'
 ########################################################################################################################
 target_project_name = target_project_folder.replace('-', '')
@@ -87,7 +87,8 @@ tool_description = ("Tool for basic file operations. Supports reading the conten
 ../eigenlib/eigenlib/LLM # Modules useful for developing gen AI LLM applications.
 ../eigenlib/eigenlib/utils # Contain low level utilities for building projects. Very important, contains many low level modules to build projects.
 
-# {target_project_name.upper()} LIBRARY
+# PROJECTS STRUCTURE
+Every projects from the given has the structure:
 ./data/raw #Storage of raw sources.
 ./data/curated #Storage of curated sources. Used as feature store.
 ./data/processed # Storage of processed sources.
@@ -95,12 +96,14 @@ tool_description = ("Tool for basic file operations. Supports reading the conten
 ./img/ 
 ./models/ # Storage of machine Learning models
 ./scripts/ # Utils scripts for the project.
-./{target_project_name}/main.py # Main script of the project.
-./{target_project_name}/modules # All the modules that are inside the project are here.
-./{target_project_name}/development # Directory with files under development, safe area.
-./{target_project_name}/configs # Files that builds the configuration files for the main class.
+./projectmodule/main.py # Main script of the project.
+./projectmodule/modules # All the modules that are inside the project are here.
+./projectmodule/development # Directory with files under development, safe area.
+./projectmodule/configs # Files that builds the configuration files for the main class.
 ./tests/test_main.py #T est module of the main script.
 ./tests/modules # Test for testing the modules. One test for each module in the project folder.
+
+projectmodule is the name of the module (eg, swarmintelligence)
     """)
 default_config = {}
 tool_args = [
@@ -295,8 +298,8 @@ Provide clear requirements, constraints and expectations for the code you want t
     """,
     'agent_context': f"""
 # CONTEXT:
-You are an advanced AI software developer that helps the user to work in his project. 
-Project name: {target_project_folder}
+You are an advanced AI software developer that helps the user to work in several projects you can edit, develop, launch...
+Projects: {str(environments)}
     """,
     'agent_instructions': """""",
     'eval_instructions': """
