@@ -9,14 +9,13 @@ target_project_name = target_project_folder.replace('-', '')
 environ_arg = [{
         "name": "selected_environment",
         "type": "string",
-        "description": "This argument allows to select the environment to work with. Each one is the environment of a different project(root dir + interpreter). Must be specified by user.",
+        "description": "This argument allows to select the environment to work with. Each one is the environment of a different project directories and interpreter. Must be specified by user.",
         "enum": environments,
         "required": True,
     }]
 #environ_arg = []
 
 """Tools Setup"""
-
 # CODE INTERPRETER TOOL SETUP
 tool_name = 'code_interpreter'
 tool_description = """Code interpreter for expert software development in the environment of the project."""
@@ -34,7 +33,7 @@ tool_args = [
         "required": True,
     },
 ] + environ_arg
-ci_tool = ServerTool('code_interpreter', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, address_node=address_node)
+ci_tool = ServerTool('code_interpreter', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 # SOURCE PARSE TOOL
 tool_name = 'sources_parser_and_summarizer'
@@ -71,7 +70,7 @@ tool_args = [
         "required": True,
     },
 ] + environ_arg
-sp_tool = ServerTool('sources_parser_and_summarizer', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args, address_node=address_node)
+sp_tool = ServerTool('sources_parser_and_summarizer', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
 # LOCAL FILE OPERATIONS TOOL
 tool_name = 'file_operations_tools'
@@ -125,7 +124,7 @@ tool_args = [
         "required": False,
     },
 ] + environ_arg
-fo_tool = ServerTool('local_file_operations_tools', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args, address_node=address_node)
+fo_tool = ServerTool('local_file_operations_tools', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
 # GET FILES MAP TOOL
 tool_name = 'get_files_map'
@@ -143,7 +142,7 @@ tool_args = [
         "required": True,
     },
 ] + environ_arg
-pm_tool = ServerTool('get_files_map', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args, address_node=address_node)
+pm_tool = ServerTool('get_files_map', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
 # GOOGLE SEARCH TOOL ADAPTER
 tool_name = 'google_search'
@@ -165,7 +164,7 @@ tool_args = [
         "required": False,
     },
 ] + environ_arg
-gs_tool = ServerTool('google_search', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, address_node=address_node)
+gs_tool = ServerTool('google_search', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 # BROWSE URL TOOL ADAPTER
 tool_name = 'browse_url'
@@ -196,7 +195,7 @@ tool_args = [
         "required": False,
     },
 ] + environ_arg
-br_tool = ServerTool('browse_url', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, address_node=address_node)
+br_tool = ServerTool('browse_url', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 # VECTOR DATABASE
 tool_name = 'rag_vector_database'
@@ -220,7 +219,7 @@ tool_args = [
         "required": True,
     },
 ] + environ_arg
-vdb_tool = ServerTool('vector_database', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, address_node=address_node)
+vdb_tool = ServerTool('vector_database', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
 tools = {
     'code_interpreter': ci_tool,

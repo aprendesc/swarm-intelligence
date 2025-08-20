@@ -1,22 +1,32 @@
-import unittest
-import os
+import sys, os
 from eigenlib.utils.project_setup import ProjectSetup
-
 ########################################################################################################################
-base_path = f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos'
-project_folder = 'swarm-intelligence'
+os.environ['BASE_PATH'] = f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos'
+os.environ['REPO_FOLDER'] = 'swarm-intelligence'
+os.environ['MODULE_NAME'] = 'swarmintelligence'
 path_dirs = [
-            #os.path.join(base_path, 'swarm-ml'),
-            os.path.join(base_path, 'swarm-intelligence'),
-            os.path.join(base_path, 'swarm-automations'),
-            #os.path.join(base_path, 'swarm-compute'),
-            os.path.join(base_path, 'eigenlib')
-        ]
+                os.path.join(os.environ['BASE_PATH'], 'swarm-ml'),
+                os.path.join(os.environ['BASE_PATH'], 'swarm-intelligence'),
+                os.path.join(os.environ['BASE_PATH'], 'swarm-automations'),
+                os.path.join(os.environ['BASE_PATH'], 'swarm-compute'),
+                os.path.join(os.environ['BASE_PATH'], 'eigenlib'),
+                ]
+sys.path.extend([os.path.join(os.environ['BASE_PATH'], 'eigenlib')])
 ########################################################################################################################
 ps = ProjectSetup()
-ps.health_check(base_path=base_path, project_folder=project_folder, path_dirs=path_dirs,)
-#SEPARATOR##############################################################################################################
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+ps.init()
+ps.coverage()
+########################################################################################################################
+# PROJECT SERVER
+import os
+from swarmautomations.main import MainClass as SAMainClass
+config = {
+    'launch_master': False,
+    'node_name': os.environ['MODULE_NAME'],
+    'node_delay': 1
+}
+sa_main = SAMainClass(config).deploy_project_server(config)
+########################################################################################################################
 
 #TEMPLATES
 class MyClass:
