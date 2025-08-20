@@ -2,17 +2,19 @@ import json
 from swarmcompute.main import MainClass as SCMainClass
 
 class ServerTool:
-    def __init__(self, method, default_config, tool_name, tool_description, tool_args):
+    def __init__(self, method, default_config, tool_name, tool_description, tool_args, address_node):
         self.method = method
         self.tool_name = tool_name
         self.tool_description = tool_description
         self.tool_args = tool_args
         self.default_config = default_config
+        self.address_node = address_node
 
     def initialize(self):
         pass
 
     def run(self, config):
+        config = config | self.default_config
         try:
             sc_config = {
                 'mode': 'client',
@@ -20,8 +22,8 @@ class ServerTool:
                 'password': 'internal_password',
                 'node_name': 'client_node',
                 'node_method': None,
-                'address_node': 'sa_tools_node',
-                'payload': {'method': self.method, 'config': config},
+                'address_node': self.address_node,
+                'payload': {'method': self.method, 'config': config, 'selected_environment':config['selected_environment']},
                 'delay': 0.1,
             }
             sc_main = SCMainClass(sc_config)

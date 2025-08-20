@@ -1,10 +1,10 @@
-import os
-import pandas as pd
+
+from eigenlib.utils.project_setup import ProjectSetup
 from eigenlib.utils.databricks_serving_utils import use_endpoint
 
 class MainClass:
     def __init__(self, config=None):
-        pass
+        ProjectSetup().init()
 
     @use_endpoint
     def initialize(self, config):
@@ -19,6 +19,7 @@ class MainClass:
         temperature = config['temperature']
         tools_dict = config['tools_dict']
         tool_choice = config['tool_choice']
+        self.use_cloud = config['use_cloud']
         ################################################################################################################
         self.chain = RAGChain(agent_model=agent_model, user_model=user_model, eval_model=eval_model, user_reasoning_effort=user_reasoning_effort, agent_reasoning_effort=agent_reasoning_effort, eval_reasoning_effort=eval_reasoning_effort, tools_dict=tools_dict, tool_choice=tool_choice)
         self.chain.initialize()
@@ -45,6 +46,8 @@ class MainClass:
 
     @use_endpoint
     def dataset_labeling(self, config):
+        import pandas as pd
+        import os
         from eigenlib.utils.data_utils import DataUtilsClass
         from eigenlib.LLM.dataset_autolabeling import DatasetAutolabelingClass
         ################################################################################################################
@@ -110,6 +113,7 @@ class MainClass:
         from eigenlib.LLM.llm_client import LLMClientClass
         from eigenlib.LLM.llm_validation_split import LLMValidationSplitClass
         import os
+        import pandas as pd
         ################################################################################################################
         gen_dataset_name = config['hist_output_dataset_name']
         ft_dataset_name = config['ft_dataset_name']
@@ -127,6 +131,8 @@ class MainClass:
 
     @use_endpoint
     def eval(self, config):
+        import pandas as pd
+        import os
         from eigenlib.utils.data_utils import DataUtilsClass
         from eigenlib.utils.parallel_utils import ParallelUtilsClass
         from eigenlib.LLM.episode import EpisodeClass
@@ -244,15 +250,13 @@ class MainClass:
         bot.run()
 
     @use_endpoint
-    def launch_front(self, config):
+    def launch_frontend(self, config):
         import os
         import subprocess
-        os.environ['PROJECT_ROOT'] = os.getcwd()
-        os.environ['PROJECT_DIR'] = 'swarm-intelligence'
         ################################################################################################################
-        file = os.path.join(os.environ['PROJECT_ROOT'], f'swarmintelligence/modules/frontend.py')
-        eigenlib_root = os.environ["PROJECT_ROOT"].replace(os.environ['PROJECT_DIR'], 'eigenlib')
-        swarm_compute_root = os.environ["PROJECT_ROOT"].replace(os.environ['PROJECT_DIR'], 'swarm-compute')
-        command = f'set PYTHONPATH={os.environ["PROJECT_ROOT"]};{eigenlib_root};{swarm_compute_root} && streamlit run ' + file
+        file = os.path.join(os.environ["BASE_PATH"], os.environ['REPO_FOLDER'], os.environ['MODULE_NAME'], 'modules/frontend.py')
+        project_root = os.path.join(os.environ["BASE_PATH"], os.environ['REPO_FOLDER'])
+        eigenlib_root = os.path.join(os.environ["BASE_PATH"], 'eigenlib')
+        command = f'set PYTHONPATH={eigenlib_root};{project_root} && streamlit run ' + file
         subprocess.run(command, shell=True)
         return config

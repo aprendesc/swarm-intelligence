@@ -2,8 +2,19 @@ from swarmintelligence.modules.server_tool import ServerTool
 ########################################################################################################################
 assistant_name = 'software_developer_assistant'
 target_project_folder = 'swarm-intelligence'
+environments = ["swarm-intelligence", "swarm-automations", 'swarm-ml', 'swarm-compute', 'eigenlib']
+address_node = 'project_dev_node'
 ########################################################################################################################
 target_project_name = target_project_folder.replace('-', '')
+environ_arg = [{
+        "name": "selected_environment",
+        "type": "string",
+        "description": "This argument allows to select the environment to work with. Each one is the environment of a different project(root dir + interpreter). Must be specified by user.",
+        "enum": environments,
+        "required": True,
+    }]
+#environ_arg = []
+
 """Tools Setup"""
 
 # CODE INTERPRETER TOOL SETUP
@@ -22,8 +33,8 @@ tool_args = [
         "description": "Code that will be executed in the code interpreter.",
         "required": True,
     },
-]
-ci_tool = ServerTool('code_interpreter', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
+] + environ_arg
+ci_tool = ServerTool('code_interpreter', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, address_node=address_node)
 
 # SOURCE PARSE TOOL
 tool_name = 'sources_parser_and_summarizer'
@@ -59,8 +70,8 @@ tool_args = [
         "description": "True to summarize the source instead of parsing the raw source. Default: True",
         "required": True,
     },
-]
-sp_tool = ServerTool('sources_parser_and_summarizer', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
+] + environ_arg
+sp_tool = ServerTool('sources_parser_and_summarizer', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args, address_node=address_node)
 
 # LOCAL FILE OPERATIONS TOOL
 tool_name = 'file_operations_tools'
@@ -113,8 +124,8 @@ tool_args = [
         "description": "Content to write to the file. Required if mode is 'write_file'. 'no_content' when mode is 'read_file'.",
         "required": False,
     },
-]
-fo_tool = ServerTool('local_file_operations_tools', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
+] + environ_arg
+fo_tool = ServerTool('local_file_operations_tools', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args, address_node=address_node)
 
 # GET FILES MAP TOOL
 tool_name = 'get_files_map'
@@ -131,8 +142,8 @@ tool_args = [
         "description": "Root directory to extract the tree of files and subdirectories. Default '.'",
         "required": True,
     },
-]
-pm_tool = ServerTool('get_files_map', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
+] + environ_arg
+pm_tool = ServerTool('get_files_map', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args, address_node=address_node)
 
 # GOOGLE SEARCH TOOL ADAPTER
 tool_name = 'google_search'
@@ -153,8 +164,8 @@ tool_args = [
         "description": "Maximum number of results to retrieve (max 20). Default 10.",
         "required": False,
     },
-]
-gs_tool = ServerTool('google_search', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, )
+] + environ_arg
+gs_tool = ServerTool('google_search', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, address_node=address_node)
 
 # BROWSE URL TOOL ADAPTER
 tool_name = 'browse_url'
@@ -184,8 +195,8 @@ tool_args = [
         "description": "True to summarise the browsed content. Default False.",
         "required": False,
     },
-]
-br_tool = ServerTool('browse_url', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
+] + environ_arg
+br_tool = ServerTool('browse_url', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, address_node=address_node)
 
 # VECTOR DATABASE
 tool_name = 'rag_vector_database'
@@ -208,8 +219,8 @@ tool_args = [
         "description": "Query to make the retrieval of relevant information. Use several search terms semantically similar to a possible answer.",
         "required": True,
     },
-]
-vdb_tool = ServerTool('vector_database', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
+] + environ_arg
+vdb_tool = ServerTool('vector_database', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args, address_node=address_node)
 
 tools = {
     'code_interpreter': ci_tool,

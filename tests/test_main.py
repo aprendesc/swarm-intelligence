@@ -134,7 +134,7 @@ class TestMainClass(unittest.TestCase):
         bot_thread.start()
         time.sleep(self.test_time)
 
-    def test_launch_front(self):
+    def test_launch_frontend(self):
         import threading
         import time
         config = {
@@ -227,7 +227,7 @@ class TestMainClass(unittest.TestCase):
         }
         self.main.initialize(config)
         def aux_fun():
-            updated_config = self.main.launch_front(config)
+            updated_config = self.main.launch_frontend(config)
         bot_thread = threading.Thread(target=aux_fun, daemon=True)
         bot_thread.start()
-        time.sleep(self.test_time)
+        time.sleep(30000)

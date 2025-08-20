@@ -1,4 +1,5 @@
-import os
+from eigenlib.utils.project_setup import ProjectSetup
+ProjectSetup().init(verbose=False)
 import importlib
 import streamlit as st
 import pickle
@@ -6,31 +7,8 @@ import datetime
 from pathlib import Path
 from eigenlib.utils.data_utils import DataUtilsClass
 from swarmintelligence.main import MainClass
-from eigenlib.utils.project_setup import ProjectSetup
 from eigenlib.utils.alert_utils import AlertsUtils
 import os
-ProjectSetup().init(path_dirs=[], working_dir=f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos/swarm-intelligence', project_folder='swarm-intelligence')
-
-if False:
-    import sys
-    import os
-    from dotenv import load_dotenv
-    ####################################################################################################################
-    project_folder = 'swarm-intelligence'
-    base_path = f'C:/Users/{os.environ["USERNAME"]}/Desktop/proyectos'
-    ####################################################################################################################
-    load_dotenv()
-    os.getcwd()
-    sys.path.extend([
-        os.path.join(base_path, 'swarm-ml'),
-        os.path.join(base_path, 'swarm-intelligence'),
-        os.path.join(base_path, 'swarm-automations'),
-        os.path.join(base_path, 'swarm-compute'),
-        os.path.join(base_path, 'eigenlib')
-    ])
-    os.environ['PROJECT_NAME'] = project_folder.replace('-', '')
-    os.environ['PROJECT_FOLDER'] = project_folder
-    os.chdir(os.path.join(base_path, project_folder))
 
 class FrontEndClass:
     def __init__(self):
@@ -40,99 +18,14 @@ class FrontEndClass:
 
         # --- CONSTANTES Y RUTAS ---
         RAW_DATA_PATH    = Path(os.environ['RAW_DATA_PATH'])
-        CURATED_DATA_PATH= Path(os.environ['CURATED_DATA_PATH'])
-        HISTORY_DIR      = Path(os.environ['PROCESSED_DATA_PATH']) / "personal_assistant_chat_history"
-        HISTORY_DIR.mkdir(parents=True, exist_ok=True)
-
-        def get_available_configs():
-            """Revisa el directorio ./<PROJECT_NAME>/configs y devuelve un diccionario con nombres de archivo y rutas."""
-            base_path = f'./{os.environ["PROJECT_NAME"]}/configs'
-            configs = [c for c in os.listdir(base_path) if 'config' in c.lower()]
-            return configs
-
-        def get_dataset_directories(directory: Path, identifier: str):
-            if not directory.exists(): return []
-            return sorted([f.name for f in directory.iterdir()
-                           if f.is_dir() and identifier.lower() in f.name.lower()],
-                          reverse=True)
-
-        def get_saved_chats():
-            return sorted([f.name for f in HISTORY_DIR.glob("*.pkl")], reverse=True)
-
-        def save_chat_history(history, filename):
-            with open(HISTORY_DIR / filename, "wb") as f:
-                pickle.dump(history, f)
-
-        def load_chat_history(filename):
-            try:
-                with open(HISTORY_DIR / filename, "rb") as f:
-                    return pickle.load(f)
-            except (FileNotFoundError, pickle.UnpicklingError):
-                st.error(f"No se pudo cargar el chat '{filename}'.")
-                return []
-
-        def delete_chat_history(filename):
-            try:
-                (HISTORY_DIR / filename).unlink()
-                st.success(f"Chat '{filename}' eliminado.")
-            except FileNotFoundError:
-                st.error(f"El archivo '{filename}' no se encontró para eliminar.")
-
-        def display_message(text):
-            """Muestra un mensaje de texto dentro de una caja escalable."""
-            MIN_HEIGHT = 50
-            MAX_HEIGHT = 700
-            MAX_TEXT_LENGTH = 3200
-            text_length = len(str(text))
-            if text_length < MAX_TEXT_LENGTH:
-                height = int(MIN_HEIGHT + (MAX_HEIGHT - MIN_HEIGHT) *
-                             2 * (text_length / MAX_TEXT_LENGTH))
-            else:
-                height = MAX_HEIGHT
-            with st.container(height=height):
-                st.text(text)
-
-        def render_dataset_viewer():
-            """Muestra la interfaz de visualización y edición de datasets."""
-            info = st.session_state.viewing_dataset_info
-            st.title(f"👁️ Visor de Dataset: {info['name']}")
-            if st.button("⬅️ Volver al Chat"):
-                st.session_state.view_mode = 'chat'
-                st.session_state.viewing_dataset_info = None
-                st.rerun()
-
-            st.caption(f"Estás viendo y editando el dataset '{info['name']}' en `{CURATED_DATA_PATH}`.")
-            try:
-                with st.spinner("Cargando dataset..."):
-                    du = DataUtilsClass()
-                    try:
-                        df = du.load_dataset(path=str(CURATED_DATA_PATH),
-                                             dataset_name=info['name'], format='csv')
-                    except:
-                        df = du.load_dataset(path=str(CURATED_DATA_PATH),
-                                             dataset_name=info['name'], format='pkl')
-                if df.empty or 'error' in df.columns:
-                    st.error(f"No se pudo cargar o el dataset está vacío. Contenido: {df.to_string()}")
-                    return
-                st.info("Edita filas en la tabla. No olvides guardar.")
-                edited_df = st.data_editor(df, num_rows="dynamic",
-                                           use_container_width=True, height=600)
-                if st.button("💾 Guardar Cambios"):
-                    with st.spinner("Guardando cambios..."):
-                        du = DataUtilsClass()
-                        du.save_dataset(df=edited_df, path=str(CURATED_DATA_PATH),
-                                        dataset_name=info['name'], format='csv')
-                    st.success("Guardado!")
-                    st.rerun()
-            except Exception as e:
-                st.error(f"Ocurrió un error: {e}")
-                import traceback
-                st.code(traceback.format_exc())
+        self.CURATED_DATA_PATH= Path(os.environ['CURATED_DATA_PATH'])
+        self.HISTORY_DIR      = Path(os.environ['PROCESSED_DATA_PATH']) / "personal_assistant_chat_history"
+        self.HISTORY_DIR.mkdir(parents=True, exist_ok=True)
 
         st.set_page_config(page_title="Personal Assistant", layout="wide", initial_sidebar_state="expanded")
         st.title("🧠 Asistente Personal")
 
-        available_configs = get_available_configs()#configs_module)
+        available_configs = self._get_available_configs()#configs_module)
         available_configs = [a.replace('.py', '') for a in available_configs]
         try:
             default_config_name = available_configs[0]
@@ -143,7 +36,7 @@ class FrontEndClass:
         if 'selected_config_name' not in st.session_state:
             st.session_state.selected_config_name = default_config_name
 
-        module_path = f"{os.environ['PROJECT_NAME']}.configs.{st.session_state.selected_config_name}"
+        module_path = f"{os.environ['MODULE_NAME']}.configs.{st.session_state.selected_config_name}"
         module = importlib.import_module(module_path)
         config = getattr(module, "config")
 
@@ -163,10 +56,9 @@ class FrontEndClass:
                     st.stop()
 
         with st.sidebar:
-            tab1, tab2, tab3 = st.tabs([
+            tab1, tab2 = st.tabs([
                 "⚙️ Configuración y Chats",
                 "🛠️ Dataset Generation",
-                "🛠️ Tools Setup"
             ])
 
             # --- PESTAÑA 1: Configuración y Chats ---
@@ -228,12 +120,12 @@ class FrontEndClass:
                     st.session_state.view_mode = 'chat'
                     st.rerun()
 
-                saved = get_saved_chats()
+                saved = self._get_saved_chats()
                 if saved:
                     sel = st.selectbox("Cargar chat:", saved, key="sb_saved")
                     c1, c2 = st.columns(2)
                     if c1.button("Cargar"):
-                        st.session_state.history = load_chat_history(sel)
+                        st.session_state.history = self._load_chat_history(sel)
                         st.session_state.current_chat_file = sel
                         st.session_state.view_mode = 'chat'
                         st.rerun()
@@ -241,7 +133,7 @@ class FrontEndClass:
                         if st.session_state.current_chat_file == sel:
                             st.session_state.history = []
                             st.session_state.current_chat_file = None
-                        delete_chat_history(sel)
+                        self._delete_chat_history(sel)
                         st.rerun()
 
                 st.divider()
@@ -279,7 +171,7 @@ class FrontEndClass:
                     if not st.session_state.raw_selected and not st.session_state.url_selected:
                         st.warning("Debes elegir una carpeta o introducir al menos una URL.")
                     else:
-                        curated_folders = [f.name for f in CURATED_DATA_PATH.iterdir()
+                        curated_folders = [f.name for f in self.CURATED_DATA_PATH.iterdir()
                                            if f.is_dir()]
                         if not curated_folders:
                             st.warning("No hay carpetas en CURATED_DATA_PATH.")
@@ -306,7 +198,7 @@ class FrontEndClass:
                                 st.rerun()
 
                 with st.expander("PASO 2: Labeling Automático"):
-                    curated_folders = [d.name for d in CURATED_DATA_PATH.iterdir() if d.is_dir()]
+                    curated_folders = [d.name for d in self.CURATED_DATA_PATH.iterdir() if d.is_dir()]
                     if not curated_folders:
                         st.warning("Ejecuta antes el PASO 1.")
                     else:
@@ -347,7 +239,7 @@ class FrontEndClass:
                                 st.rerun()
 
                 with st.expander("PASO 3: Fine-Tuning"):
-                    gen_datasets = get_dataset_directories(CURATED_DATA_PATH, "")
+                    gen_datasets = self._get_dataset_directories(self.CURATED_DATA_PATH, "")
                     if not gen_datasets:
                         st.warning("Ejecuta antes el PASO 2.")
                     else:
@@ -384,7 +276,7 @@ class FrontEndClass:
                                 st.error(f"Error en FT: {e}")
 
                 with st.expander("PASO 4: Evaluación"):
-                    eval_datasets = get_dataset_directories(CURATED_DATA_PATH, "")
+                    eval_datasets = self._get_dataset_directories(self.CURATED_DATA_PATH, "")
                     if not eval_datasets:
                         st.warning("Ejecuta antes pasos previos.")
                     else:
@@ -417,58 +309,15 @@ class FrontEndClass:
                             st.rerun()
 
                 with st.expander("PASO 5: Visualización y Edición"):
-                    available_datasets = get_dataset_directories(CURATED_DATA_PATH, '')
+                    available_datasets = self._get_dataset_directories(self.CURATED_DATA_PATH, '')
                     sel_view = st.selectbox("Selecciona dataset:", available_datasets)
                     if st.button("👁️ Ver Dataset"):
                         st.session_state.view_mode = 'dataset_viewer'
                         st.session_state.viewing_dataset_info = {'name': sel_view}
                         st.rerun()
 
-            # --- PESTAÑA 3: Tools Setup (VDB) ---
-            with tab3:
-                with st.expander("Vector Database Tool"):
-                    if "raw_selected" not in st.session_state:
-                        st.session_state.raw_selected = []
-                    if "url_selected" not in st.session_state:
-                        st.session_state.url_selected = []
-                    st.subheader("📂 Selección de Fuentes")
-                    raw_folders = [f.name for f in RAW_DATA_PATH.iterdir() if f.is_dir()]
-                    st.session_state.raw_selected = st.multiselect(
-                        "Elige carpetas:", raw_folders,
-                        default=st.session_state.raw_selected, key='VDB_raw_sel')
-                    st.markdown("---")
-                    urls = st.text_area("URLs fuentes", value=st.session_state.config.get('raw_sources',[]), height=100, key='VDB_url_sel').strip()
-                    try:
-                        st.session_state.url_selected = eval(urls)
-                    except:
-                        st.session_state.url_selected = []
-                    if not st.session_state.raw_selected and not st.session_state.url_selected:
-                        st.warning("Selecciona al menos una fuente.")
-                    else:
-                        curated_folders = [f.name for f in CURATED_DATA_PATH.iterdir() if f.is_dir()]
-                        if not curated_folders:
-                            st.warning("Ejecuta PASO 1 primero.")
-                        else:
-                            vdb_name = st.text_input(
-                                "Nombre VDB:", value=st.session_state.config.get("vdb_name",""))
-                            vdb_thr  = st.number_input(
-                                "Chunking threshold:", min_value=100, max_value=10000,
-                                step=100, value=st.session_state.config.get("vdb_chunking_threshold",1500))
-                            if st.button("Crear VDB"):
-                                c = st.session_state.config.copy()
-                                c.update({
-                                    "indexation_VDB_name": vdb_name,
-                                    "vdb_chunking_threshold": vdb_thr,
-                                    "raw_sources": st.session_state.raw_selected +
-                                                   st.session_state.url_selected
-                                })
-                                with st.spinner("Indexando VDB..."):
-                                    st.session_state.main_class.tools_setup(c)
-                                st.success(f"✅ VDB '{vdb_name}' creada.")
-                                st.rerun()
-
         if st.session_state.view_mode == 'dataset_viewer':
-            render_dataset_viewer()
+            self._render_dataset_viewer()
         else:
             chat_container = st.container(height=900)
             with chat_container:
@@ -488,7 +337,7 @@ class FrontEndClass:
                             elif role == 'tool':
                                 st.json(content, expanded=False)
                             else:
-                                display_message(content)
+                                self._display_message(content)
 
             if prompt := st.chat_input("Escribe tu mensaje aquí..."):
                 # Determinar fuente de la imagen (local o URL)
@@ -497,7 +346,7 @@ class FrontEndClass:
                     # Guarda el binario en disco junto al historial
                     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                     fn = f"{ts}_{image_file.name}"
-                    save_path = HISTORY_DIR / fn
+                    save_path = self.HISTORY_DIR / fn
                     with open(save_path, "wb") as f:
                         f.write(image_file.getbuffer())
                     img_src = str(save_path)
@@ -534,10 +383,93 @@ class FrontEndClass:
                     if st.session_state.current_chat_file is None:
                         ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                         st.session_state.current_chat_file = f"chat_{ts}.pkl"
-                    save_chat_history(st.session_state.history,
-                                      st.session_state.current_chat_file)
+                    self._save_chat_history(st.session_state.history, st.session_state.current_chat_file)
                     # Reiniciamos la app para refrescar todo
                     st.rerun()
+
+    def _get_available_configs(self):
+        """Revisa el directorio ./<PROJECT_NAME>/configs y devuelve un diccionario con nombres de archivo y rutas."""
+        base_path = f'{os.environ["WORKING_DIR"]}/{os.environ["MODULE_NAME"]}/configs'
+        configs = [c for c in os.listdir(base_path) if 'config' in c.lower()]
+        return configs
+
+    def _get_dataset_directories(self, directory: Path, identifier: str):
+        if not directory.exists(): return []
+        return sorted([f.name for f in directory.iterdir()
+                       if f.is_dir() and identifier.lower() in f.name.lower()],
+                      reverse=True)
+
+    def _get_saved_chats(self):
+        return sorted([f.name for f in self.HISTORY_DIR.glob("*.pkl")], reverse=True)
+
+    def _save_chat_history(self, history, filename):
+        with open(self.HISTORY_DIR / filename, "wb") as f:
+            pickle.dump(history, f)
+
+    def _load_chat_history(self, filename):
+        try:
+            with open(self.HISTORY_DIR / filename, "rb") as f:
+                return pickle.load(f)
+        except (FileNotFoundError, pickle.UnpicklingError):
+            st.error(f"No se pudo cargar el chat '{filename}'.")
+            return []
+
+    def _delete_chat_history(self, filename):
+        try:
+            (self.HISTORY_DIR / filename).unlink()
+            st.success(f"Chat '{filename}' eliminado.")
+        except FileNotFoundError:
+            st.error(f"El archivo '{filename}' no se encontró para eliminar.")
+
+    def _display_message(self, text):
+        """Muestra un mensaje de texto dentro de una caja escalable."""
+        MIN_HEIGHT = 50
+        MAX_HEIGHT = 700
+        MAX_TEXT_LENGTH = 3200
+        text_length = len(str(text))
+        if text_length < MAX_TEXT_LENGTH:
+            height = int(MIN_HEIGHT + (MAX_HEIGHT - MIN_HEIGHT) *
+                         2 * (text_length / MAX_TEXT_LENGTH))
+        else:
+            height = MAX_HEIGHT
+        with st.container(height=height):
+            st.text(text)
+
+    def _render_dataset_viewer(self):
+        """Muestra la interfaz de visualización y edición de datasets."""
+        info = st.session_state.viewing_dataset_info
+        st.title(f"👁️ Visor de Dataset: {info['name']}")
+        if st.button("⬅️ Volver al Chat"):
+            st.session_state.view_mode = 'chat'
+            st.session_state.viewing_dataset_info = None
+            st.rerun()
+
+        st.caption(f"Estás viendo y editando el dataset '{info['name']}' en `{self.CURATED_DATA_PATH}`.")
+        try:
+            with st.spinner("Cargando dataset..."):
+                du = DataUtilsClass()
+                try:
+                    df = du.load_dataset(path=str(self.CURATED_DATA_PATH),
+                                         dataset_name=info['name'], format='csv')
+                except:
+                    df = du.load_dataset(path=str(self.CURATED_DATA_PATH),
+                                         dataset_name=info['name'], format='pkl')
+            if df.empty or 'error' in df.columns:
+                st.error(f"No se pudo cargar o el dataset está vacío. Contenido: {df.to_string()}")
+                return
+            st.info("Edita filas en la tabla. No olvides guardar.")
+            edited_df = st.data_editor(df, num_rows="dynamic",
+                                       use_container_width=True, height=600)
+            if st.button("💾 Guardar Cambios"):
+                with st.spinner("Guardando cambios..."):
+                    du = DataUtilsClass()
+                    du.save_dataset(df=edited_df, path=str(self.CURATED_DATA_PATH), dataset_name=info['name'], format='csv')
+                st.success("Guardado!")
+                st.rerun()
+        except Exception as e:
+            st.error(f"Ocurrió un error: {e}")
+            import traceback
+            st.code(traceback.format_exc())
 
 if __name__ == '__main__':
     FrontEndClass().run()
