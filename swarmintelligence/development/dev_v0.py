@@ -11,7 +11,7 @@ path_dirs = [
                 os.path.join(os.environ['BASE_PATH'], 'swarm-compute'),
                 os.path.join(os.environ['BASE_PATH'], 'eigenlib'),
                 ]
-sys.path.extend([os.path.join(os.environ['BASE_PATH'], 'eigenlib')])
+sys.path.extend(path_dirs)
 ########################################################################################################################
 ps = ProjectSetup()
 ps.init()
