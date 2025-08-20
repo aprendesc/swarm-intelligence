@@ -29,7 +29,7 @@ class ServerTool:
             new_config = sc_main.launch_personal_net(sc_config)['response']
             results = new_config['result']
         except Exception as e:
-            results = {'error':str(e)}
+            results = {'error':str(e) + '->The tool server failed. Stop the execution and inform the user.'}
         return json.dumps(results)
 
     def get_tool_dict(self):

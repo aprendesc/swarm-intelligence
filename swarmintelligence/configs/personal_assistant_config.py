@@ -116,14 +116,20 @@ tool_args = [
     {
         "name": "mode",
         "type": "string",
-        "enum": ["read_file", "write_file"],
+        "enum": ["read_file", "write_file", "replace"],
         "description": "Operation mode: 'read_file' to read the file, 'write_file' to overwrite the file with provided content.",
         "required": True,
     },
     {
         "name": "content",
         "type": "string",
-        "description": "Content to write to the file. Required if mode is 'write_file'. 'no_content' when mode is 'read_file'.",
+        "description": "Content to write to the file. 'no_content' when mode is 'read_file'. Required only in 'write_file' or 'replace' mode.",
+        "required": False,
+    },
+    {
+        "name": "content_to_replace",
+        "type": "string",
+        "description": "Content to be replaced by the content argument. You must include *exactly* the string to be replaced. Required only in 'replace' mode.",
         "required": False,
     },
 

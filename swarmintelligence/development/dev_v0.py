@@ -44,5 +44,10 @@ class TestMyClass(unittest.TestCase):
         mc = MyClass()
         mc.run()
 
+"""
+Vamos a modificar el main.py para incluir un modo replace, de manera que se incluya un nuevo argumento que sea content_to_replace y el nuevo modo.
+
+Debe estar programado exactamente igual que yo suelo programar todo, mismo estilo. El resto de la clase debe quedar EXACTAMENTE igual.
+"""
 
 
