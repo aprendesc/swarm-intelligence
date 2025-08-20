@@ -21,7 +21,7 @@ class ServerTool:
                 'password': 'internal_pass',
                 'node_name': 'client_node',
                 'node_method': None,
-                'address_node': config['selected_environment'],
+                'address_node': config['selected_project'],
                 'payload': {'method': self.method, 'config': config},
                 'delay': 0.1,
             }

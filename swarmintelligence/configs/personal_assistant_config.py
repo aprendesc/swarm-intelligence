@@ -7,9 +7,9 @@ address_node = 'project_dev_node'
 ########################################################################################################################
 target_project_name = target_project_folder.replace('-', '')
 environ_arg = [{
-        "name": "selected_environment",
+        "name": "selected_project",
         "type": "string",
-        "description": "This argument allows to select the environment to work with. Each one is the environment of a different project directories and interpreter. Must be specified by user.",
+        "description": "This argument allows to select the project to work with. Must be specified by user.",
         "enum": environments,
         "required": True,
     }]
@@ -126,6 +126,7 @@ tool_args = [
         "description": "Content to write to the file. Required if mode is 'write_file'. 'no_content' when mode is 'read_file'.",
         "required": False,
     },
+
 ] + environ_arg
 fo_tool = ServerTool('local_file_operations_tools', tool_name=tool_name, tool_description=tool_description, default_config=default_config ,tool_args=tool_args)
 
