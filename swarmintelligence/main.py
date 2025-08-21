@@ -260,3 +260,16 @@ class MainClass:
         command = f'set PYTHONPATH={eigenlib_root};{project_root} && streamlit run ' + file
         subprocess.run(command, shell=True)
         return config
+
+    @use_endpoint
+    def project_dev_server(self, config):
+        import os
+        from swarmautomations.main import MainClass as SAMainClass
+        ################################################################################################################
+        config = {
+            'launch_master': False,
+            'node_name': os.environ['MODULE_NAME'],
+            'node_delay': 1
+        }
+        sa_main = SAMainClass(config)
+        sa_main.deploy_project_server(config)
