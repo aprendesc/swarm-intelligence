@@ -1,5 +1,5 @@
 from eigenlib.utils.project_setup import ProjectSetup
-ProjectSetup().init(verbose=False)
+ProjectSetup().init(verbose=True)
 import importlib
 import streamlit as st
 import pickle
@@ -38,18 +38,26 @@ class FrontEndClass:
 
         module_path = f"{os.environ['MODULE_NAME']}.configs.{st.session_state.selected_config_name}"
         module = importlib.import_module(module_path)
-        config = getattr(module, "config")
+        cfg_object = getattr(module, "Config")()
+        config = {
+                'initialize': cfg_object.initialize(),
+                'dataset_generation': cfg_object.dataset_generation(),
+                'dataset_labeling': cfg_object.dataset_labeling(),
+                'train': cfg_object.train(),
+                'eval': cfg_object.eval(),
+                'predict': cfg_object.predict(),
+                }
 
         if "main_class" not in st.session_state:
-            st.session_state.main_class = MainClass(config)
+            st.session_state.main_class = MainClass()
             st.session_state.history = []
             st.session_state.current_chat_file = None
-            st.session_state.config = config.copy()
+            st.session_state.config = config
             st.session_state.view_mode = 'chat'
             st.session_state.viewing_dataset_info = None
             with st.spinner("Inicializando asistente..."):
                 try:
-                    st.session_state.main_class.initialize(st.session_state.config.copy())
+                    st.session_state.main_class.initialize(config['initialize'].copy())
                     st.toast("Asistente inicializado.")
                 except Exception as e:
                     st.error(f"Error en inicialización: {e}")
@@ -67,39 +75,28 @@ class FrontEndClass:
                 selected = st.selectbox("Elige configuración:", available_configs, index=available_configs.index(st.session_state.selected_config_name))
                 if selected != st.session_state.selected_config_name:
                     st.session_state.selected_config_name = selected
-                    for k in ['main_class','history','current_chat_file',
-                              'view_mode','viewing_dataset_info']:
+                    for k in ['main_class','history','current_chat_file', 'view_mode','viewing_dataset_info']:
                         st.session_state.pop(k, None)
                     st.success(f"Configuración '{selected}' cargada. Reiniciando...")
                     st.rerun()
 
                 st.divider()
                 st.header("Filtros de Chat")
-                sel_agent_id = st.multiselect(
-                    "Agent ID:", ['USER','AGENT','EVAL'], default=['AGENT'])
-                sel_roles    = st.multiselect(
-                    "Role:", ['user','assistant','tool','system'],
-                    default=['user','assistant', 'tool'])
+                sel_agent_id = st.multiselect("Agent ID:", ['USER','AGENT','EVAL'], default=['AGENT'])
+                sel_roles    = st.multiselect("Role:", ['user','assistant','tool','system'], default=['user','assistant', 'tool'])
 
                 st.header("Model & Parámetros")
                 model_opts = ["o3", "gpt-5-mini", "o4-mini","gpt-4.1","gpt-4.1-mini","gpt-4.1-nano"]
-                default_model = st.session_state.config.get("agent_model","o4-mini")
-                agent_model = st.selectbox(
-                    "Modelo agente:", model_opts,
-                    index=model_opts.index(default_model) if default_model in model_opts else 0
-                )
+                default_model = st.session_state.config['initialize'].get("agent_model","o4-mini")
+                agent_model = st.selectbox("Modelo agente:", model_opts, index=model_opts.index(default_model) if default_model in model_opts else 0)
                 re_opts = ['low','medium','high',None]
-                def_re = st.session_state.config.get("agent_reasoning_effort",None)
-                reasoning = st.selectbox("Razonamiento:", re_opts,
-                                         index=re_opts.index(def_re))
-                delv = st.checkbox("Delete steering",
-                                   value=st.session_state.config.get("del_steering",True))
-                temp = st.slider("Temperatura:", 0.0, 2.0,
-                                 value=float(st.session_state.config.get('temperature',1.0)), step=0.1)
+                def_re = st.session_state.config['initialize'].get("agent_reasoning_effort",None)
+                reasoning = st.selectbox("Razonamiento:", re_opts, index=re_opts.index(def_re))
+                delv = st.checkbox("Delete steering", value=st.session_state.config['dataset_labeling'].get("del_steering",True))
+                temp = st.slider("Temperatura:", 0.0, 2.0, value=float(st.session_state.config['initialize'].get('temperature',1.0)), step=0.1)
                 mode_opts = ["auto","none","required"]
-                def_mode = st.session_state.config.get("tool_choice","auto")
-                tool_choice = st.selectbox("Tool mode:", mode_opts,
-                                           index=mode_opts.index(def_mode) if def_mode in mode_opts else 0)
+                def_mode = st.session_state.config['initialize'].get("tool_choice","auto")
+                tool_choice = st.selectbox("Tool mode:", mode_opts, index=mode_opts.index(def_mode) if def_mode in mode_opts else 0)
                 if st.button("🚀 Aplicar"):
                     st.session_state.config.update({
                         'agent_model': agent_model,
@@ -109,7 +106,7 @@ class FrontEndClass:
                         'tool_choice': tool_choice
                     })
                     with st.spinner("Reconfigurando..."):
-                        st.session_state.main_class.initialize(st.session_state.config.copy())
+                        st.session_state.main_class.initialize(config['initialize_config'].copy())
                     st.toast("Configuración aplicada.")
 
                 st.divider()
@@ -161,7 +158,7 @@ class FrontEndClass:
                     st.markdown("---")
                     urls = st.text_area(
                         "Lista de fuentes (URL)",
-                        value=st.session_state.config.get('raw_sources', []),
+                        value=st.session_state.config['dataset_generation'].get('raw_sources', []),
                         height=80
                     ).strip()
                     try:
@@ -178,15 +175,15 @@ class FrontEndClass:
                         else:
                             seeds_name = st.text_input(
                                 "Nombre dataset de seeds:",
-                                value=st.session_state.config.get("seeds_dataset_name","")
+                                value=st.session_state.config['dataset_generation'].get("seeds_dataset_name","")
                             )
                             seeds_thr = st.number_input(
                                 "Seeds chunking threshold:",
                                 min_value=10, max_value=100000, step=100,
-                                value=st.session_state.config.get("seeds_chunking_threshold",900)
+                                value=st.session_state.config['dataset_generation'].get("seeds_chunking_threshold",900)
                             )
                             if st.button("Crear dataset"):
-                                c = st.session_state.config.copy()
+                                c = st.session_state.config['dataset_generation'].copy()
                                 c.update({
                                     "seed_chunking_threshold": seeds_thr,
                                     "raw_sources": st.session_state.url_selected +
@@ -202,23 +199,23 @@ class FrontEndClass:
                     if not curated_folders:
                         st.warning("Ejecuta antes el PASO 1.")
                     else:
-                        use_guidance = st.checkbox("Guidance", value=st.session_state.config.get("use_guidance", True))
-                        sel_in      = st.text_input("Dataset entrada:", value=st.session_state.config["gen_input_dataset_name"])
-                        gen_out     = st.text_input("Nombre dataset generado:", value=st.session_state.config.get("gen_output_dataset_name",""))
-                        hist_out    = st.text_input("Nombre dataset historia:", value=st.session_state.config.get("hist_output_dataset_name",""))
-                        n_threads   = st.number_input("Nº hilos (n_thread):", min_value=1, max_value=64, step=1, value=st.session_state.config.get("n_thread",16))
-                        max_iter    = st.number_input("Máx iteraciones (gen_max_iter):", min_value=1, max_value=100,value=st.session_state.config.get("gen_max_iter",5))
-                        gen_static  = st.checkbox("Usuario estático", value=st.session_state.config.get("gen_static_user",False))
-                        use_steer   = st.checkbox("Usar agent steering", value=st.session_state.config.get("gen_use_agent_steering",True))
-                        del_steer   = st.checkbox("Eliminar steering tras generación", value=st.session_state.config.get("del_steering",True))
-                        user_context = st.text_area("User context", value=st.session_state.config.get('user_context', []), height=100, key='user_context_area').strip()
-                        user_instructions = st.text_area("User instructions", value=st.session_state.config.get('user_instructions', []), height=100, key='user_instructions_area').strip()
+                        use_guidance = st.checkbox("Guidance", value=st.session_state.config['dataset_labeling'].get("use_guidance", True))
+                        sel_in      = st.text_input("Dataset entrada:", value=st.session_state.config['dataset_labeling']["gen_input_dataset_name"])
+                        gen_out     = st.text_input("Nombre dataset generado:", value=st.session_state.config['dataset_labeling'].get("gen_output_dataset_name",""))
+                        hist_out    = st.text_input("Nombre dataset historia:", value=st.session_state.config['dataset_labeling'].get("hist_output_dataset_name",""))
+                        n_threads   = st.number_input("Nº hilos (n_thread):", min_value=1, max_value=64, step=1, value=st.session_state.config['dataset_labeling'].get("n_thread",16))
+                        max_iter    = st.number_input("Máx iteraciones (gen_max_iter):", min_value=1, max_value=100,value=st.session_state.config['dataset_labeling'].get("gen_max_iter",5))
+                        gen_static  = st.checkbox("Usuario estático", value=st.session_state.config['dataset_labeling'].get("gen_static_user",False))
+                        use_steer   = st.checkbox("Usar agent steering", value=st.session_state.config['dataset_labeling'].get("gen_use_agent_steering",True))
+                        del_steer   = st.checkbox("Eliminar steering tras generación", value=st.session_state.config['dataset_labeling'].get("del_steering",True))
+                        user_context = st.text_area("User context", value=st.session_state.config['dataset_labeling'].get('user_context', []), height=100, key='user_context_area').strip()
+                        user_instructions = st.text_area("User instructions", value=st.session_state.config['dataset_labeling'].get('user_instructions', []), height=100, key='user_instructions_area').strip()
 
                         if st.button("Generar dataset"):
                             if not gen_out.strip() or not hist_out.strip():
                                 st.error("Define nombres de salida e historia.")
                             else:
-                                c = st.session_state.config.copy()
+                                c = st.session_state.config['dataset_labeling'].copy()
                                 c.update({
                                     "gen_input_dataset_name": sel_in,
                                     "gen_output_dataset_name": gen_out.strip(),
@@ -243,26 +240,19 @@ class FrontEndClass:
                     if not gen_datasets:
                         st.warning("Ejecuta antes el PASO 2.")
                     else:
-                        sel_hist   = st.text_input("Historia de entrada:", value=st.session_state.config.get('hist_output_dataset_name'))
-                        default_ft = st.session_state.config.get('ft_dataset_name', f"{sel_hist}_FT")
+                        sel_hist   = st.text_input("Historia de entrada:", value=st.session_state.config['train'].get('hist_output_dataset_name'))
+                        default_ft = st.session_state.config['train'].get('ft_dataset_name', f"{sel_hist}_FT")
                         out_ft     = st.text_input("Directorio salida (FT):", value=default_ft)
-                        perc_split = st.slider("Split validación:", 0.01, 0.5,
-                                               value=st.session_state.config.get('perc_split',0.2), step=0.01)
-                        run_ft     = st.checkbox("Ejecutar Fine-Tuning?",
-                                                 value=st.session_state.config.get('run_ft',True))
-                        n_epochs   = st.number_input("Epochs:", min_value=1, max_value=100,
-                                                     value=st.session_state.config.get('n_epochs',1))
-                        avail_models = st.session_state.config.get(
-                            'ft_available_models',
-                            ['gpt-4.1-nano','gpt-4.1-mini','gpt-4.1','o4-mini'])
-                        default_model = st.session_state.config.get('ft_model', avail_models[0])
-                        ft_model    = st.selectbox("Modelo FT:", avail_models,
-                                                  index=avail_models.index(default_model)
-                                                  if default_model in avail_models else 0)
+                        perc_split = st.slider("Split validación:", 0.01, 0.5, value=st.session_state.config['train'].get('perc_split',0.2), step=0.01)
+                        run_ft     = st.checkbox("Ejecutar Fine-Tuning?", value=st.session_state.config['train'].get('run_ft',True))
+                        n_epochs   = st.number_input("Epochs:", min_value=1, max_value=100, value=st.session_state.config['train'].get('n_epochs',1))
+                        avail_models = st.session_state.config['train'].get('ft_available_models', ['gpt-4.1-nano','gpt-4.1-mini','gpt-4.1','o4-mini'])
+                        default_model = st.session_state.config['train'].get('ft_model', avail_models[0])
+                        ft_model    = st.selectbox("Modelo FT:", avail_models, index=avail_models.index(default_model) if default_model in avail_models else 0)
                         if st.button("Iniciar Fine-Tuning"):
                             try:
-                                cfg = st.session_state.config.copy()
-                                cfg.update({
+                                c = st.session_state.config['train'].copy()
+                                c.update({
                                     'gen_output_dataset': sel_hist,
                                     'ft_dataset_name': out_ft,
                                     'perc_split': perc_split,
@@ -270,7 +260,7 @@ class FrontEndClass:
                                     'n_epochs': n_epochs,
                                     'ft_model': ft_model
                                 })
-                                st.session_state.main_class.train(cfg)
+                                st.session_state.main_class.train(c)
                                 st.success("Job de FT enviado.")
                             except Exception as e:
                                 st.error(f"Error en FT: {e}")
@@ -280,18 +270,17 @@ class FrontEndClass:
                     if not eval_datasets:
                         st.warning("Ejecuta antes pasos previos.")
                     else:
-                        default_in  = st.session_state.config.get('eval_input_dataset_name', eval_datasets[0])
-                        sel_eval_in = st.text_input("Dataset entrada:", value=st.session_state.config['eval_input_dataset_name'])
-                        eval_out    = st.text_input("Directorio salida:", value=st.session_state.config.get('eval_output_dataset_name',""))
-                        hist_eval   = st.text_input("Directorio historia:", value=st.session_state.config.get('eval_hist_output_dataset_name',""))
-                        eval_user   = st.checkbox("Usuario estático", value=st.session_state.config.get('eval_static_user',False))
-                        eval_iter   = st.number_input("Máx iteraciones:", min_value=1, max_value=1000, value=st.session_state.config.get('eval_max_iter',10))
-                        eval_steer  = st.checkbox("Usar Agent Steering", value=st.session_state.config.get('eval_use_agent_steering',False))
-                        eval_nthr   = st.slider("Hilos (n_thread):", 1, 32,
-                                                value=st.session_state.config.get('n_thread',4))
+                        default_in  = st.session_state.config['eval'].get('eval_input_dataset_name', eval_datasets[0])
+                        sel_eval_in = st.text_input("Dataset entrada:", value=st.session_state.config['eval']['eval_input_dataset_name'])
+                        eval_out    = st.text_input("Directorio salida:", value=st.session_state.config['eval'].get('eval_output_dataset_name',""))
+                        hist_eval   = st.text_input("Directorio historia:", value=st.session_state.config['eval'].get('eval_hist_output_dataset_name',""))
+                        eval_user   = st.checkbox("Usuario estático", value=st.session_state.config['eval'].get('eval_static_user',False))
+                        eval_iter   = st.number_input("Máx iteraciones:", min_value=1, max_value=1000, value=st.session_state.config['eval'].get('eval_max_iter',10))
+                        eval_steer  = st.checkbox("Usar Agent Steering", value=st.session_state.config['eval'].get('eval_use_agent_steering',False))
+                        eval_nthr   = st.slider("Hilos (n_thread):", 1, 32, value=st.session_state.config['eval'].get('n_thread',4))
                         if st.button("Iniciar Evaluación"):
                             try:
-                                c = st.session_state.config.copy()
+                                c = st.session_state.config['eval'].copy()
                                 c.update({
                                     'eval_input_dataset_name': sel_eval_in,
                                     'eval_output_dataset_name': eval_out,
@@ -322,9 +311,7 @@ class FrontEndClass:
             chat_container = st.container(height=900)
             with chat_container:
                 for message in st.session_state.history:
-                    if (message.get("agent_id") in sel_agent_id
-                            and message.get("channel") in sel_roles):
-
+                    if (message.get("agent_id") in sel_agent_id and message.get("channel") in sel_roles):
                         role    = message.get("channel","user")
                         content = message.get("content","")
                         modality     = message.get("modality", None)
@@ -363,7 +350,7 @@ class FrontEndClass:
                 })
 
                 # Preparamos config para la llamada
-                call_cfg = st.session_state.config.copy()
+                call_cfg = st.session_state.config['predict'].copy()
                 call_cfg['history']      = st.session_state.history
                 call_cfg['user_message'] = prompt
                 call_cfg['img']          = img_src
@@ -395,9 +382,7 @@ class FrontEndClass:
 
     def _get_dataset_directories(self, directory: Path, identifier: str):
         if not directory.exists(): return []
-        return sorted([f.name for f in directory.iterdir()
-                       if f.is_dir() and identifier.lower() in f.name.lower()],
-                      reverse=True)
+        return sorted([f.name for f in directory.iterdir() if f.is_dir() and identifier.lower() in f.name.lower()], reverse=True)
 
     def _get_saved_chats(self):
         return sorted([f.name for f in self.HISTORY_DIR.glob("*.pkl")], reverse=True)
@@ -428,8 +413,7 @@ class FrontEndClass:
         MAX_TEXT_LENGTH = 3200
         text_length = len(str(text))
         if text_length < MAX_TEXT_LENGTH:
-            height = int(MIN_HEIGHT + (MAX_HEIGHT - MIN_HEIGHT) *
-                         2 * (text_length / MAX_TEXT_LENGTH))
+            height = int(MIN_HEIGHT + (MAX_HEIGHT - MIN_HEIGHT) * 2 * (text_length / MAX_TEXT_LENGTH))
         else:
             height = MAX_HEIGHT
         with st.container(height=height):
@@ -449,11 +433,9 @@ class FrontEndClass:
             with st.spinner("Cargando dataset..."):
                 du = DataUtilsClass()
                 try:
-                    df = du.load_dataset(path=str(self.CURATED_DATA_PATH),
-                                         dataset_name=info['name'], format='csv')
+                    df = du.load_dataset(path=str(self.CURATED_DATA_PATH), dataset_name=info['name'], format='csv')
                 except:
-                    df = du.load_dataset(path=str(self.CURATED_DATA_PATH),
-                                         dataset_name=info['name'], format='pkl')
+                    df = du.load_dataset(path=str(self.CURATED_DATA_PATH), dataset_name=info['name'], format='pkl')
             if df.empty or 'error' in df.columns:
                 st.error(f"No se pudo cargar o el dataset está vacío. Contenido: {df.to_string()}")
                 return

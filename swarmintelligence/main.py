@@ -1,12 +1,9 @@
-
 from eigenlib.utils.project_setup import ProjectSetup
-from eigenlib.utils.databricks_serving_utils import use_endpoint
 
 class MainClass:
-    def __init__(self, config=None):
+    def __init__(self):
         ProjectSetup().init()
 
-    @use_endpoint
     def initialize(self, config):
         from eigenlib.LLM.rag_chain import RAGChain
         ################################################################################################################
@@ -20,12 +17,12 @@ class MainClass:
         tools_dict = config['tools_dict']
         tool_choice = config['tool_choice']
         self.use_cloud = config['use_cloud']
+        self.use_wandb = False
         ################################################################################################################
         self.chain = RAGChain(agent_model=agent_model, user_model=user_model, eval_model=eval_model, user_reasoning_effort=user_reasoning_effort, agent_reasoning_effort=agent_reasoning_effort, eval_reasoning_effort=eval_reasoning_effort, tools_dict=tools_dict, tool_choice=tool_choice)
         self.chain.initialize()
         return config
 
-    @use_endpoint
     def dataset_generation(self, config):
         from eigenlib.LLM.vector_database import VectorDatabaseClass
         from eigenlib.LLM.sources_parser import SourcesParserClass
@@ -44,7 +41,6 @@ class MainClass:
         DataUtilsClass().save_dataset(source_df, path=os.environ['CURATED_DATA_PATH'], dataset_name=seeds_dataset_name, format='csv', cloud=self.use_cloud)
         return config
 
-    @use_endpoint
     def dataset_labeling(self, config):
         import pandas as pd
         import os
@@ -60,8 +56,6 @@ class MainClass:
         n_thread = config['n_thread']
         use_guidance = config['use_guidance']
         gen_n_epoch = config['gen_n_epoch']
-        ################################################################################################################
-        self.initialize(config)
         ################################################################################################################
         match use_guidance:
             case True:
@@ -107,7 +101,6 @@ class MainClass:
         DataUtilsClass().save_dataset(history, path=os.environ['CURATED_DATA_PATH'], dataset_name=hist_output_dataset_name, format='csv', cloud=self.use_cloud)
         return config
 
-    @use_endpoint
     def train(self, config):
         from eigenlib.utils.data_utils import DataUtilsClass
         from eigenlib.LLM.llm_client import LLMClientClass
@@ -129,7 +122,6 @@ class MainClass:
         LLMClientClass(model=ft_model).train(X_train=X_train, X_test=X_test, output_FT_dataset_name=ft_dataset_name, agent_id=agent_id, run_ft=run_ft, n_epoch=n_epochs)
         return config
 
-    @use_endpoint
     def eval(self, config):
         import pandas as pd
         import os
@@ -146,13 +138,11 @@ class MainClass:
         n_thread = config['n_thread']
         eval_hist_output_dataset_name = config['eval_hist_output_dataset_name']
         ################################################################################################################
-        self.initialize(config)
-        ################################################################################################################
         self.chain.run_eval = True
         self.chain.static_user = static_user
         self.chain.max_iter = max_iter
         self.chain.use_agent_steering = use_agent_steering
-        self.chain.use_wandb = self.use_wandb
+        self.chain.use_wandb = False
         # DATA LOAD######################################################################################################
         df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=input_dataset_name, format='csv', file_features=False, cloud=False).applymap(lambda x: None if pd.isna(x) else x)
         if config.get('n_samples') is not None:
@@ -211,7 +201,6 @@ class MainClass:
             wandb.finish()
         return config
 
-    @use_endpoint
     def predict(self, config):
         import pandas as pd
         from eigenlib.LLM.episode import EpisodeClass
@@ -233,7 +222,6 @@ class MainClass:
         config['history'] = episode.history.to_dict(orient='records')
         return config
 
-    @use_endpoint
     def telegram_chatbot_run(self, config):
         from swarmintelligence.modules.telegram_chatbot import TelegramChatbotClass
         ################################################################################################################
@@ -249,7 +237,6 @@ class MainClass:
         bot = TelegramChatbotClass(BOT_TOKEN, mi_logica_chat)
         bot.run()
 
-    @use_endpoint
     def launch_frontend(self, config):
         import os
         import subprocess
@@ -260,16 +247,3 @@ class MainClass:
         command = f'set PYTHONPATH={eigenlib_root};{project_root} && streamlit run ' + file
         subprocess.run(command, shell=True)
         return config
-
-    @use_endpoint
-    def project_dev_server(self, config):
-        import os
-        from swarmautomations.main import MainClass as SAMainClass
-        ################################################################################################################
-        config = {
-            'launch_master': False,
-            'node_name': os.environ['MODULE_NAME'],
-            'node_delay': 1
-        }
-        sa_main = SAMainClass(config)
-        sa_main.deploy_project_server(config)
