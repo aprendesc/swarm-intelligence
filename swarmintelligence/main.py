@@ -229,10 +229,11 @@ class MainClass:
         ################################################################################################################
         self.initialize(config)
         def mi_logica_chat(mensaje, context):
-            from swarmintelligence.configs.personal_assistant_config import config
-            config['user_message'] = mensaje
-            config = self.predict(config)
-            answer = config['state_dict']['answer']
+            from swarmintelligence.configs.base_config import Config
+            cfg = Config().predict()
+            cfg['user_message'] = mensaje
+            cfg = self.predict(cfg)
+            answer = cfg['state_dict']['answer']
             return answer
         bot = TelegramChatbotClass(BOT_TOKEN, mi_logica_chat)
         bot.run()
