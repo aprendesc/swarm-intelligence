@@ -1,5 +1,4 @@
 import json
-from swarmcompute.main import MainClass as SCMainClass
 
 class ServerTool:
     def __init__(self, method, default_config, tool_name, tool_description, tool_args):
@@ -13,6 +12,7 @@ class ServerTool:
         pass
 
     def run(self, config):
+        from swarmcompute.main import MainClass as SCMainClass
         config = config | self.default_config
         try:
             sc_config = {
