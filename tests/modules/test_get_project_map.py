@@ -1,7 +1,7 @@
 from swarmintelligence.modules.get_project_map import GetProjectMap
 import unittest
 
-class TestMainClass(unittest.TestCase):
+class TestMain(unittest.TestCase):
     def setUp(self):
         pass
 

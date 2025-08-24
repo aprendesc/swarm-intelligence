@@ -12,7 +12,7 @@ class ServerTool:
         pass
 
     def run(self, config):
-        from swarmcompute.main import MainClass as SCMainClass
+        from swarmcompute.main import Main as SCMain
         config = config | self.default_config
         try:
             sc_config = {
@@ -23,7 +23,7 @@ class ServerTool:
                 'payload': {'method': self.method, 'config': config},
                 'delay': 0.1,
             }
-            sc_main = SCMainClass()
+            sc_main = SCMain()
             new_config = sc_main.launch_client(sc_config)['response']
             results = new_config['result']
         except Exception as e:

@@ -1,5 +1,5 @@
 from eigenlib.LLM.episode import EpisodeClass
-from swarmintelligence.main import MainClass
+from swarmintelligence.main import Main
 import pandas as pd
 
 class CustomAssistantTool:
@@ -18,7 +18,7 @@ class CustomAssistantTool:
 
     def initialize(self):
         self.episode = EpisodeClass()
-        self.main = MainClass(self.config)
+        self.main = Main(self.config)
         self.main.initialize(self.config)
 
     def get_tool_dict(self):

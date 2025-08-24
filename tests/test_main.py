@@ -1,12 +1,12 @@
-from swarmintelligence.main import MainClass
+from swarmintelligence.main import Main
 from swarmintelligence.configs.base_config import Config
 import unittest
 
-class TestMainClass(unittest.TestCase):
+class TestMain(unittest.TestCase):
     def setUp(self):
         self.test_time = 100
         self.cfg = Config()
-        self.main = MainClass()
+        self.main = Main()
 
     def test_initialize(self):
         updated_config = self.main.initialize(self.cfg.initialize())

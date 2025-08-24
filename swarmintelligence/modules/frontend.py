@@ -6,7 +6,7 @@ import pickle
 import datetime
 from pathlib import Path
 from eigenlib.utils.data_utils import DataUtilsClass
-from swarmintelligence.main import MainClass
+from swarmintelligence.main import Main
 from eigenlib.utils.alert_utils import AlertsUtils
 import os
 
@@ -49,7 +49,7 @@ class FrontEndClass:
                 }
 
         if "main_class" not in st.session_state:
-            st.session_state.main_class = MainClass()
+            st.session_state.main_class = Main()
             st.session_state.history = []
             st.session_state.current_chat_file = None
             st.session_state.config = config

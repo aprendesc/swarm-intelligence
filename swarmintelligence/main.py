@@ -1,6 +1,6 @@
 from eigenlib.utils.project_setup import ProjectSetup
 
-class MainClass:
+class Main:
     def __init__(self):
         ProjectSetup().init()
 
