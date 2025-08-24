@@ -240,7 +240,7 @@ tools_dict = {
 }
 
 class Config:
-    def __init__(self, assistant_name='software_developer_assistant', target_project_folder='swarm-intelligence', environments=["jedipoc", "swarmintelligence", "swarmautomations", 'swarmml', 'swarmcompute', 'eigenlib'], address_node='project_dev_node', user_model='o3', agent_model='o3', eval_model='o3', user_reasoning_effort='medium', agent_reasoning_effort='high', eval_reasoning_effort='low', temperature=1.0, use_cloud=False, use_wandb=False, n_samples=3, n_thread=8, use_guidance=True, lang='eng'):
+    def __init__(self, assistant_name='test_assistant', target_project_folder='swarm-intelligence', environments=["jedipoc", "swarmintelligence", "swarmautomations", 'swarmml', 'swarmcompute', 'eigenlib'], address_node='project_dev_node', user_model='o3', agent_model='o3', eval_model='o3', user_reasoning_effort='medium', agent_reasoning_effort='high', eval_reasoning_effort='low', temperature=1.0, use_cloud=False, use_wandb=False, n_thread=8, use_guidance=True, lang='eng'):
         # Common attributes
         self.assistant_name = assistant_name
         self.target_project_folder = target_project_folder
@@ -259,7 +259,6 @@ class Config:
         # Runtime settings
         self.use_cloud = use_cloud
         self.use_wandb = use_wandb
-        self.n_samples = n_samples
         self.n_thread = n_thread
         self.use_guidance = use_guidance
         self.lang = lang
@@ -276,6 +275,30 @@ class Config:
         self.eval_input_dataset_name = f"{assistant_name}_GEN"
         self.eval_output_dataset_name = f"{assistant_name}_EVAL"
         self.eval_hist_output_dataset_name = f"{assistant_name}_HIST_EVAL"
+
+        self.user_context = """
+# CONTEXT:
+You are a code examinator.
+You ask simple code questions that can be solved in simple code operations lime 'Calculate the sqrt of 4 using python.'
+Your first message must be a coding question. Specify to use the code executor to answer.
+"""
+        self.user_instructions = """
+# INSTRUCTIONS:
+* You simply ask questions.
+* Provide clear requirements, constraints and expectations for the code you want to be written or analysed.
+"""
+        self.agent_context = f"""
+# CONTEXT:
+You are an advanced AI software developer that helps the user to work in several projects you can edit, develop, launch...
+Projects: {str(self.environments)}
+"""
+        self.agent_instructions = ""
+        self.eval_instructions = """
+# INSTRUCTIONS:
+Given the conversation so far, evaluate the assistant response on correctness and helpfulness (0–10).
+"""
+
+        self.tools_register = [t.get_tool_dict() for t in tools_dict.values()]
 
     def initialize(self, update=None):
         cfg = {
@@ -314,33 +337,19 @@ class Config:
             'del_steering': del_steering,
             'n_thread': self.n_thread,
             'use_guidance': self.use_guidance,
-            'n_samples': self.n_samples,
+            'n_samples': 9999,
             'use_cloud': self.use_cloud,
             'use_wandb': self.use_wandb,
             # Context and instructions (would need to be defined)
-            'user_context': """
-# CONTEXT:
-You are the user who interacts with a highly capable software-developer assistant.
-You ask questions, request implementations and review existing code.
-            """,
-            'user_instructions': """
-# INSTRUCTIONS (USER):
-Provide clear requirements, constraints and expectations for the code you want to be written or analysed.
-            """,
-            'agent_context': f"""
-# CONTEXT:
-You are an advanced AI software developer that helps the user to work in several projects you can edit, develop, launch...
-Projects: {str(self.environments)}
-            """,
-            'agent_instructions': "",
-            'eval_instructions': """
-# NEW INSTRUCTIONS:
-Given the conversation so far, evaluate the assistant response on correctness and helpfulness (0–10).
-            """
+            'user_context': self.user_context,
+            'user_instructions': self.user_instructions,
+            'agent_context': self.agent_context,
+            'agent_instructions': self.agent_instructions,
+            'eval_instructions': self.eval_instructions,
         }
         return cfg | (update or {})
 
-    def train(self, perc_split=0.2, run_ft=False, n_epochs=1, ft_model='gpt-4.1-mini', update=None):
+    def train(self, perc_split=0.2, run_ft=True, n_epochs=1, ft_model='gpt-4.1-mini', update=None):
         cfg = {
             'hist_output_dataset_name': self.hist_output_dataset_name,
             'ft_dataset_name': self.ft_dataset_name,
@@ -348,7 +357,8 @@ Given the conversation so far, evaluate the assistant response on correctness an
             'run_ft': run_ft,
             'n_epochs': n_epochs,
             'ft_model': ft_model,
-            'use_cloud': self.use_cloud
+            'use_cloud': self.use_cloud,
+            'tools': self.tools_register
         }
         return cfg | (update or {})
 
@@ -366,37 +376,19 @@ Given the conversation so far, evaluate the assistant response on correctness an
             'use_wandb': self.use_wandb,
             'hypothesis': f"Software developer assistant that can be used as a tool for developing advanced software.",
             # Context and instructions
-            'user_context': """
-# CONTEXT:
-You are the user who interacts with a highly capable software-developer assistant.
-You ask questions, request implementations and review existing code.
-            """,
-            'user_instructions': """
-# INSTRUCTIONS (USER):
-Provide clear requirements, constraints and expectations for the code you want to be written or analysed.
-            """,
-            'agent_context': f"""
-# CONTEXT:
-You are an advanced AI software developer that helps the user to work in several projects you can edit, develop, launch...
-Projects: {str(self.environments)}
-            """,
-            'agent_instructions': "",
-            'eval_instructions': """
-# NEW INSTRUCTIONS:
-Given the conversation so far, evaluate the assistant response on correctness and helpfulness (0–10).
-            """
+            'user_context': self.user_context,
+            'user_instructions': self.user_instructions,
+            'agent_context': self.agent_context,
+            'agent_instructions': self.agent_instructions,
+            'eval_instructions': self.eval_instructions,
         }
         return cfg | (update or {})
 
-    def predict(self, steering=None, img=None, user_message=None, history=None, update=None):
+    def predict(self, history=None, update=None):
         cfg = {
-            'agent_context': f"""
-# CONTEXT:
-You are an advanced AI software developer that helps the user to work in several projects you can edit, develop, launch...
-Projects: {str(self.environments)}
-            """,
-            'agent_instructions': "",
-            'steering': steering or """
+            'user_context': self.user_context,
+            'user_instructions': self.user_instructions,
+            'steering': """
 # INSTRUCTIONS:
 * You are a high skilled software developer expert in developing clean, efficient, high quality code and solutions for the user's project.
 * Answer always with full solutions.
@@ -405,8 +397,8 @@ Projects: {str(self.environments)}
 * User can't see tool outputs, you must deliver every relevant information in your answer.
 * Before taking action always plan the best steps to solve the problem, you can use the tools as many times as you need and update your plan based on the new information gathered until the goal is achieved.
             """,
-            'img': img,
-            'user_message': user_message or 'Lets work on improving fine tuning of models. First of all, identify in eigenlib the file llm_client',
+            'img': None,
+            'user_message': 'Sum 1 + 1',
             'history': history or {}
         }
         return cfg | (update or {})

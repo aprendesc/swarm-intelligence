@@ -59,7 +59,7 @@ class MainClass:
         ################################################################################################################
         match use_guidance:
             case True:
-                df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=input_dataset_name, format='csv', file_features=False, cloud=False).applymap(lambda x: None if pd.isna(x) else x)
+                df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=input_dataset_name, format='csv', file_features=False, cloud=False).map(lambda x: None if pd.isna(x) else x)
                 assert list(df.columns) == [
                     'index',
                     'episode_id',
@@ -114,12 +114,13 @@ class MainClass:
         run_ft = config['run_ft']
         n_epochs = config['n_epochs']
         ft_model = config['ft_model']
+        tools = config['tools']
         agent_id = 'AGENT'
         ################################################################################################################
-        df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=gen_dataset_name, format='csv', file_features=False, cloud=self.use_cloud).applymap(lambda x: None if pd.isna(x) else x)
+        df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=gen_dataset_name, format='csv', file_features=False, cloud=self.use_cloud).map(lambda x: None if pd.isna(x) else x)
         df = df[df['channel'].isin(['system','assistant','user', 'tool' ]) & (df['agent_id'].isin([agent_id]))]
         X_train, X_test = LLMValidationSplitClass().run(df, test_size=perc_split, random_seed=42)
-        LLMClientClass(model=ft_model).train(X_train=X_train, X_test=X_test, output_FT_dataset_name=ft_dataset_name, agent_id=agent_id, run_ft=run_ft, n_epoch=n_epochs)
+        LLMClientClass(model=ft_model).train(X_train=X_train, X_test=X_test, output_FT_dataset_name=ft_dataset_name, agent_id=agent_id, run_ft=run_ft, n_epoch=n_epochs, tools=tools)
         return config
 
     def eval(self, config):
@@ -144,7 +145,7 @@ class MainClass:
         self.chain.use_agent_steering = use_agent_steering
         self.chain.use_wandb = False
         # DATA LOAD######################################################################################################
-        df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=input_dataset_name, format='csv', file_features=False, cloud=False).applymap(lambda x: None if pd.isna(x) else x)
+        df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=input_dataset_name, format='csv', file_features=False, cloud=False).map(lambda x: None if pd.isna(x) else x)
         if config.get('n_samples') is not None:
             df = df.sample(config.get('n_samples'))
         # GENERATION
@@ -228,11 +229,11 @@ class MainClass:
         BOT_TOKEN = "7775699333:AAHYOw3YsEtxgKZg1eUzUCl7lfrEQFnAH5o"
         ################################################################################################################
         self.initialize(config)
+        from swarmintelligence.configs.base_config import Config
+        self.cfg = Config().predict()
         def mi_logica_chat(mensaje, context):
-            from swarmintelligence.configs.base_config import Config
-            cfg = Config().predict()
-            cfg['user_message'] = mensaje
-            cfg = self.predict(cfg)
+            self.cfg['user_message'] = mensaje
+            cfg = self.predict(self.cfg)
             answer = cfg['state_dict']['answer']
             return answer
         bot = TelegramChatbotClass(BOT_TOKEN, mi_logica_chat)

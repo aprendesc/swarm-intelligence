@@ -14,19 +14,21 @@ class TestMainClass(unittest.TestCase):
     def test_dataset_generation(self):
         import tempfile, urllib.request, ssl
         ################################################################################################################
-        f = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
-        f.write(urllib.request.urlopen("https://www.buds.com.ua/images/Lorem_ipsum.pdf", context=ssl._create_unverified_context()).read())
-        f.close()
-        raw_sources = [f.name]
+        #f = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
+        #f.write(urllib.request.urlopen("https://www.byte-by-byte.com/wp-content/uploads/2019/01/50-Coding-Interview-Questions.pdf", context=ssl._create_unverified_context()).read())
+        #f.close()
+        raw_sources = ['C:/Users/AlejandroPrendesCabo/Desktop/proyectos/swarm-intelligence/data/raw/code_interview.pdf']
         ################################################################################################################
         self.main.initialize(self.cfg.initialize())
-        updated_config = self.main.dataset_generation(self.cfg.dataset_generation(raw_sources=raw_sources))
+        updated_config = self.main.dataset_generation(self.cfg.dataset_generation(raw_sources=raw_sources, seeds_chunking_threshold=100))
 
     def test_dataset_labeling(self):
         self.main.initialize(self.cfg.initialize())
-        updated_config = self.main.dataset_labeling(self.cfg.dataset_labeling())
+
+        updated_config = self.main.dataset_labeling(self.cfg.dataset_labeling(update={'n_samples':99999}))
 
     def test_train(self):
+        self.main.initialize(self.cfg.initialize())
         updated_config = self.main.train(self.cfg.train())
 
     def test_eval(self):
