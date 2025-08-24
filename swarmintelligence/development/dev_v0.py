@@ -2,7 +2,7 @@ from swarmintelligence.main import Main
 from swarmintelligence.configs.base_config import Config
 import unittest
 
-class TestMain(unittest.TestCase):
+class TestDev(unittest.TestCase):
     def setUp(self):
         self.test_time = 100
         self.cfg = Config()
