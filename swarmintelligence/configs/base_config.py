@@ -371,7 +371,7 @@ Given the conversation so far, evaluate the assistant response on correctness an
             'eval_max_iter': eval_max_iter,
             'eval_use_agent_steering': eval_use_agent_steering,
             'n_thread': self.n_thread,
-            'n_samples': self.n_samples,
+            'n_samples': 99999,
             'use_cloud': self.use_cloud,
             'use_wandb': self.use_wandb,
             'hypothesis': f"Software developer assistant that can be used as a tool for developing advanced software.",
@@ -386,8 +386,8 @@ Given the conversation so far, evaluate the assistant response on correctness an
 
     def predict(self, history=None, update=None):
         cfg = {
-            'user_context': self.user_context,
-            'user_instructions': self.user_instructions,
+            'agent_context': self.agent_context,
+            'agent_instructions': self.agent_instructions,
             'steering': """
 # INSTRUCTIONS:
 * You are a high skilled software developer expert in developing clean, efficient, high quality code and solutions for the user's project.
