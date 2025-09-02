@@ -1,8 +1,8 @@
-from eigenlib.utils.project_setup import ProjectSetup
+from eigenlib.utils.setup import Setup
 
 class Main:
     def __init__(self):
-        ProjectSetup().init()
+        Setup().init()
 
     def initialize(self, config):
         from eigenlib.LLM.rag_chain import RAGChain
@@ -26,7 +26,7 @@ class Main:
     def dataset_generation(self, config):
         from eigenlib.LLM.vector_database import VectorDatabaseClass
         from eigenlib.LLM.sources_parser import SourcesParserClass
-        from eigenlib.utils.data_utils import DataUtilsClass
+        from eigenlib.utils.dataset_io import DatasetIO
         import os
         ################################################################################################################
         raw_sources = config['raw_sources']
@@ -38,13 +38,13 @@ class Main:
         #INDEXATION
         VDB = VectorDatabaseClass(content_feature='steering')
         source_df = VDB.create(df['content'].sum(), separator='.', create_vectors=False, chunking_threshold=seeds_chunking_threshold)
-        DataUtilsClass().save_dataset(source_df, path=os.environ['CURATED_DATA_PATH'], dataset_name=seeds_dataset_name, format='csv', cloud=self.use_cloud)
+        DatasetIO().create(path=os.path.join(os.environ['PROCESSED_DATA_PATH'], seeds_dataset_name), dataframe=source_df, partition_format='xlsx', overwrite=True)
         return config
 
     def dataset_labeling(self, config):
         import pandas as pd
         import os
-        from eigenlib.utils.data_utils import DataUtilsClass
+        from eigenlib.utils.dataset_io import DatasetIO
         from eigenlib.LLM.dataset_autolabeling import DatasetAutolabelingClass
         ################################################################################################################
         input_dataset_name = config['gen_input_dataset_name']
@@ -59,7 +59,7 @@ class Main:
         ################################################################################################################
         match use_guidance:
             case True:
-                df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=input_dataset_name, format='csv', file_features=False, cloud=False).map(lambda x: None if pd.isna(x) else x)
+                df = DatasetIO().read(path=os.path.join(os.environ['PROCESSED_DATA_PATH'], input_dataset_name)).map(lambda x: None if pd.isna(x) else x)
                 assert list(df.columns) == [
                     'index',
                     'episode_id',
@@ -97,12 +97,12 @@ class Main:
             'eval_instructions': config['eval_instructions']
         }
         df, history = DatasetAutolabelingClass().run(df, self.chain, fixed_dict, max_iter=max_iter, static_user=static_user, use_agent_steering=use_agent_steering, use_wandb=self.use_wandb, n_thread=n_thread)
-        DataUtilsClass().save_dataset(df, path=os.environ['CURATED_DATA_PATH'], dataset_name=output_dataset_name, format='csv', cloud=self.use_cloud)
-        DataUtilsClass().save_dataset(history, path=os.environ['CURATED_DATA_PATH'], dataset_name=hist_output_dataset_name, format='csv', cloud=self.use_cloud)
+        DatasetIO().create(path=os.path.join(os.environ['PROCESSED_DATA_PATH'], output_dataset_name), dataframe=df, partition_format='xlsx', overwrite=True)
+        DatasetIO().create(path=os.path.join(os.environ['PROCESSED_DATA_PATH'], hist_output_dataset_name), dataframe=history, partition_format='xlsx', overwrite=True)
         return config
 
     def train(self, config):
-        from eigenlib.utils.data_utils import DataUtilsClass
+        from eigenlib.utils.dataset_io import DatasetIO
         from eigenlib.LLM.llm_client import LLMClientClass
         from eigenlib.LLM.llm_validation_split import LLMValidationSplitClass
         import os
@@ -117,7 +117,7 @@ class Main:
         tools = config['tools']
         agent_id = 'AGENT'
         ################################################################################################################
-        df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=gen_dataset_name, format='csv', file_features=False, cloud=self.use_cloud).map(lambda x: None if pd.isna(x) else x)
+        df = DatasetIO().read(path=os.path.join(os.environ['PROCESSED_DATA_PATH'], gen_dataset_name)).map(lambda x: None if pd.isna(x) else x)
         df = df[df['channel'].isin(['system','assistant','user', 'tool' ]) & (df['agent_id'].isin([agent_id]))]
         X_train, X_test = LLMValidationSplitClass().run(df, test_size=perc_split, random_seed=42)
         LLMClientClass(model=ft_model).train(X_train=X_train, X_test=X_test, output_FT_dataset_name=ft_dataset_name, agent_id=agent_id, run_ft=run_ft, n_epoch=n_epochs, tools=tools)
@@ -126,8 +126,8 @@ class Main:
     def eval(self, config):
         import pandas as pd
         import os
-        from eigenlib.utils.data_utils import DataUtilsClass
-        from eigenlib.utils.parallel_utils import ParallelUtilsClass
+        from eigenlib.utils.dataset_io import DatasetIO
+        from eigenlib.utils.parallel_io import ParallelIO
         from eigenlib.LLM.episode import EpisodeClass
         import wandb
         ################################################################################################################
@@ -145,7 +145,7 @@ class Main:
         self.chain.use_agent_steering = use_agent_steering
         self.chain.use_wandb = False
         # DATA LOAD######################################################################################################
-        df = DataUtilsClass().load_dataset(path=os.environ['CURATED_DATA_PATH'], dataset_name=input_dataset_name, format='csv', file_features=False, cloud=False).map(lambda x: None if pd.isna(x) else x)
+        df = DatasetIO().read(path=os.path.join(os.environ['PROCESSED_DATA_PATH'], input_dataset_name)).map(lambda x: None if pd.isna(x) else x)
         if config.get('n_samples') is not None:
             df = df.sample(config.get('n_samples'))
         # GENERATION
@@ -183,15 +183,15 @@ class Main:
                     print(e)
                     print('Chain Failed, retrying...')
             return episode.history
-        result = ParallelUtilsClass().run_in_parallel(generation_fun, {}, {'variable_dict': df.to_dict(orient='records')}, n_threads=n_thread, use_processes=False)
+        result = ParallelIO().run_in_parallel(generation_fun, {}, {'variable_dict': df.to_dict(orient='records')}, max_workers=n_thread, use_processes=False)
         # METRICS
         history = pd.concat(result).sort_values(by=['episode_id', 'step', 'timestamp'])
-        DataUtilsClass().save_dataset(history, path=os.environ['CURATED_DATA_PATH'], dataset_name=config['eval_hist_output_dataset_name'], format='csv', cloud=self.use_cloud)
+        DatasetIO().create(path=os.path.join(os.environ['PROCESSED_DATA_PATH'], eval_hist_output_dataset_name), dataframe=history, partition_format='xlsx')
         df = history[history['channel'].isin(['assistant']) & (history['agent_id'].isin(['EVAL']))]
         df = pd.json_normalize(df['state_dict'])
         df['episode_id'] = range(len(df))
         df['index'] = range(len(df))
-        DataUtilsClass().save_dataset(df, path=os.environ['CURATED_DATA_PATH'], dataset_name=output_dataset_name, format='csv', cloud=self.use_cloud)
+        DatasetIO().create(path=os.path.join(os.environ['PROCESSED_DATA_PATH'], output_dataset_name), dataframe=df, partition_format='xlsx')
         print('========================================================================')
         print('Result score:', df['score'].mean())
         if self.use_wandb:
@@ -241,11 +241,25 @@ class Main:
 
     def launch_frontend(self, config):
         import os
-        import subprocess
+        from eigenlib.utils.console_io import Console
         ################################################################################################################
-        file = os.path.join(os.environ["BASE_PATH"], os.environ['REPO_FOLDER'], os.environ['MODULE_NAME'], 'modules/frontend.py')
-        project_root = os.path.join(os.environ["BASE_PATH"], os.environ['REPO_FOLDER'])
+        file = os.path.join(os.environ["BASE_PATH"], os.environ['PROJECT_FOLDER'], os.environ['PACKAGE_NAME'], 'modules/frontend.py')
+        project_root = os.path.join(os.environ["BASE_PATH"], os.environ['PROJECT_FOLDER'])
         eigenlib_root = os.path.join(os.environ["BASE_PATH"], 'eigenlib')
-        command = f'set PYTHONPATH={eigenlib_root};{project_root} && streamlit run ' + file
-        subprocess.run(command, shell=True)
+        Console(backend='cmd').run(command=f'set PYTHONPATH={eigenlib_root};{project_root} && streamlit run ' + file)
         return config
+
+if __name__ == "__main__":
+    import os
+    from swarmintelligence.configs.base_config import Config
+    os.environ['REPO_FOLDER'] = 'swarm-automations'
+    main = Main()
+    cfg = Config()
+    main.initialize(cfg.initialize())
+    # main.dataset_generation(cfg.dataset_generation())
+    # main.dataset_labeling(cfg.dataset_generation())
+    # main.train(cfg.train())
+    # main.eval(cfg.eval())
+    #main.predict(cfg.predict())
+    # main.telegram_chatbot_run(cfg.telegram_chatbot_run())
+    main.launch_frontend(cfg.launch_frontend())

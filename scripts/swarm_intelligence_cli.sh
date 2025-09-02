@@ -1,10 +1,10 @@
 # Añadir PROJECT_NAME
 export BASE_PATH="C:/Users/$USERNAME/Desktop/proyectos/"
-export REPO_FOLDER="swarm-intelligence"
-export MODULE_NAME="swarmintelligence"
+export PROJECT_FOLDER="swarm-intelligence"
+export PACKAGE_NAME="swarmintelligence"
 
 # Cambiar al directorio del proyecto
-cd "$BASE_PATH/$REPO_FOLDER" || exit
+cd "$BASE_PATH/$PROJECT_FOLDER" || exit
 
 # Configurar PYTHONPATH
 export PYTHONPATH="$BASE_PATH/eigenlib"
@@ -19,4 +19,4 @@ export $(grep -v '^#' .env | xargs)
 export PYTHONUNBUFFERED=1
 
 # Ejecutar la CLI de swarmml
-python -c """from eigenlib.utils.auto_cli import AutoCLI; AutoCLI().run()"""
+python -c """from eigenlib.utils.cli import CLI; CLI().run()"""

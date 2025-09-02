@@ -21,3 +21,8 @@ numpy
 cryptography
 zmq
 pyfiglet
+orjson
+hypy
+soundfile
+tables
+openpyxl

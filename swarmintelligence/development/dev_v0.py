@@ -1,12 +1,6 @@
-from swarmintelligence.main import Main
-from swarmintelligence.configs.base_config import Config
-import unittest
 
-class TestDev(unittest.TestCase):
-    def setUp(self):
-        self.test_time = 100
-        self.cfg = Config()
-        self.main = Main()
-
-    def test_under_development(self):
-        print('Development  test')
+from eigenlib.utils.cli import CLI
+import os
+os.environ['PACKAGE_NAME'] = 'swarmintelligence'
+cli = CLI()
+cli.run()Z

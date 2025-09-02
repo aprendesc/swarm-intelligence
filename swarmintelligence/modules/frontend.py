@@ -1,13 +1,12 @@
-from eigenlib.utils.project_setup import ProjectSetup
-ProjectSetup().init(verbose=True)
+from eigenlib.utils.setup import Setup
+Setup(verbose=True).init()
 import importlib
 import streamlit as st
 import pickle
 import datetime
 from pathlib import Path
-from eigenlib.utils.data_utils import DataUtilsClass
+from eigenlib.utils.dataset_io import DatasetIO
 from swarmintelligence.main import Main
-from eigenlib.utils.alert_utils import AlertsUtils
 import os
 
 class FrontEndClass:
@@ -18,7 +17,7 @@ class FrontEndClass:
 
         # --- CONSTANTES Y RUTAS ---
         RAW_DATA_PATH    = Path(os.environ['RAW_DATA_PATH'])
-        self.CURATED_DATA_PATH= Path(os.environ['CURATED_DATA_PATH'])
+        self.PROCESSED_DATA_PATH= Path(os.environ['PROCESSED_DATA_PATH'])
         self.HISTORY_DIR      = Path(os.environ['PROCESSED_DATA_PATH']) / "personal_assistant_chat_history"
         self.HISTORY_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -36,7 +35,7 @@ class FrontEndClass:
         if 'selected_config_name' not in st.session_state:
             st.session_state.selected_config_name = default_config_name
 
-        module_path = f"{os.environ['MODULE_NAME']}.configs.{st.session_state.selected_config_name}"
+        module_path = f"{os.environ['PACKAGE_NAME']}.configs.{st.session_state.selected_config_name}"
         module = importlib.import_module(module_path)
         cfg_object = getattr(module, "Config")()
         config = {
@@ -168,10 +167,10 @@ class FrontEndClass:
                     if not st.session_state.raw_selected and not st.session_state.url_selected:
                         st.warning("Debes elegir una carpeta o introducir al menos una URL.")
                     else:
-                        curated_folders = [f.name for f in self.CURATED_DATA_PATH.iterdir()
+                        curated_folders = [f.name for f in self.PROCESSED_DATA_PATH.iterdir()
                                            if f.is_dir()]
                         if not curated_folders:
-                            st.warning("No hay carpetas en CURATED_DATA_PATH.")
+                            st.warning("No hay carpetas en PROCESSED_DATA_PATH.")
                         else:
                             seeds_name = st.text_input(
                                 "Nombre dataset de seeds:",
@@ -195,7 +194,7 @@ class FrontEndClass:
                                 st.rerun()
 
                 with st.expander("PASO 2: Labeling Automático"):
-                    curated_folders = [d.name for d in self.CURATED_DATA_PATH.iterdir() if d.is_dir()]
+                    curated_folders = [d.name for d in self.PROCESSED_DATA_PATH.iterdir() if d.is_dir()]
                     if not curated_folders:
                         st.warning("Ejecuta antes el PASO 1.")
                     else:
@@ -236,7 +235,7 @@ class FrontEndClass:
                                 st.rerun()
 
                 with st.expander("PASO 3: Fine-Tuning"):
-                    gen_datasets = self._get_dataset_directories(self.CURATED_DATA_PATH, "")
+                    gen_datasets = self._get_dataset_directories(self.PROCESSED_DATA_PATH, "")
                     if not gen_datasets:
                         st.warning("Ejecuta antes el PASO 2.")
                     else:
@@ -266,7 +265,7 @@ class FrontEndClass:
                                 st.error(f"Error en FT: {e}")
 
                 with st.expander("PASO 4: Evaluación"):
-                    eval_datasets = self._get_dataset_directories(self.CURATED_DATA_PATH, "")
+                    eval_datasets = self._get_dataset_directories(self.PROCESSED_DATA_PATH, "")
                     if not eval_datasets:
                         st.warning("Ejecuta antes pasos previos.")
                     else:
@@ -298,7 +297,7 @@ class FrontEndClass:
                             st.rerun()
 
                 with st.expander("PASO 5: Visualización y Edición"):
-                    available_datasets = self._get_dataset_directories(self.CURATED_DATA_PATH, '')
+                    available_datasets = self._get_dataset_directories(self.PROCESSED_DATA_PATH, '')
                     sel_view = st.selectbox("Selecciona dataset:", available_datasets)
                     if st.button("👁️ Ver Dataset"):
                         st.session_state.view_mode = 'dataset_viewer'
@@ -358,7 +357,6 @@ class FrontEndClass:
                 with st.spinner("Pensando..."):
                     try:
                         updated = st.session_state.main_class.predict(call_cfg)
-                        AlertsUtils().run("Bot finished thinking.", bot_token=os.environ["TELEGRAM_BOT_TOKEN_2"], bot_chatID=int(os.environ["TELEGRAM_CHAT_ID_2"]))
 
                     except Exception as e:
                         st.error(f"Error procesando tu solicitud: {e}")
@@ -376,7 +374,7 @@ class FrontEndClass:
 
     def _get_available_configs(self):
         """Revisa el directorio ./<PROJECT_NAME>/configs y devuelve un diccionario con nombres de archivo y rutas."""
-        base_path = f'{os.environ["WORKING_DIR"]}/{os.environ["MODULE_NAME"]}/configs'
+        base_path = f'{os.environ["WORKING_DIR"]}/{os.environ["PACKAGE_NAME"]}/configs'
         configs = [c for c in os.listdir(base_path) if 'config' in c.lower()]
         return configs
 
@@ -428,14 +426,14 @@ class FrontEndClass:
             st.session_state.viewing_dataset_info = None
             st.rerun()
 
-        st.caption(f"Estás viendo y editando el dataset '{info['name']}' en `{self.CURATED_DATA_PATH}`.")
+        st.caption(f"Estás viendo y editando el dataset '{info['name']}' en `{self.PROCESSED_DATA_PATH}`.")
         try:
             with st.spinner("Cargando dataset..."):
-                du = DataUtilsClass()
+                du = DatasetIO()
                 try:
-                    df = du.load_dataset(path=str(self.CURATED_DATA_PATH), dataset_name=info['name'], format='csv')
+                    df = du.read(path=os.path.join(str(self.PROCESSED_DATA_PATH), info['name']))
                 except:
-                    df = du.load_dataset(path=str(self.CURATED_DATA_PATH), dataset_name=info['name'], format='pkl')
+                    df = du.read(path=os.path.join(str(self.PROCESSED_DATA_PATH), info['name']))
             if df.empty or 'error' in df.columns:
                 st.error(f"No se pudo cargar o el dataset está vacío. Contenido: {df.to_string()}")
                 return
@@ -444,8 +442,8 @@ class FrontEndClass:
                                        use_container_width=True, height=600)
             if st.button("💾 Guardar Cambios"):
                 with st.spinner("Guardando cambios..."):
-                    du = DataUtilsClass()
-                    du.save_dataset(df=edited_df, path=str(self.CURATED_DATA_PATH), dataset_name=info['name'], format='csv')
+                    du = DatasetIO()
+                    du.create(path=os.path.join(str(self.PROCESSED_DATA_PATH), info['name']), dataframe=df, partition_format='xlsx')
                 st.success("Guardado!")
                 st.rerun()
         except Exception as e:

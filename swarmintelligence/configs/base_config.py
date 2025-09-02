@@ -1,11 +1,26 @@
 from swarmintelligence.modules.server_tool import ServerTool
 
+use_tools = True
+
 class Config:
-    def __init__(self, target_project_folder='swarm-intelligence', user_model='o3', agent_model='o3', eval_model='o3', user_reasoning_effort='medium', agent_reasoning_effort='high', eval_reasoning_effort='low', temperature=1.0, use_cloud=False, use_wandb=False, n_thread=8, use_guidance=True, lang='eng'):
+    def __init__(self):
         ########################################################################################################################
         assistant_name = 'software_developer_assistant'
         environments = ["jedipoc", "swarmintelligence", "swarmautomations", 'swarmml', 'swarmcompute', 'eigenlib']
         address_node = 'project_dev_node'
+        target_project_folder = 'swarm-intelligence'
+        user_model = 'o3'
+        agent_model = 'o3'
+        eval_model = 'o3'
+        user_reasoning_effort = 'medium'
+        agent_reasoning_effort = 'high'
+        eval_reasoning_effort = 'low'
+        temperature = 1.0
+        use_cloud = False
+        use_wandb = False
+        n_thread = 8
+        use_guidance = True
+        lang = 'eng'
         ########################################################################################################################
         environ_arg = [{
             "name": "selected_project",
@@ -29,7 +44,7 @@ class Config:
                         },
                         {
                             "name": "code", "type": "string",
-                            "description": "Code that will be executed in the code interpreter.",
+                            "description": "Code that will be executed in the code interpreter. Use prints to get the relevant information you want to gather from executions.",
                             "required": True,
                         },
                     ] + environ_arg
@@ -231,7 +246,8 @@ class Config:
                     ] + environ_arg
         vdb_tool = ServerTool('vector_database', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
-        self.tools_dict = {
+        if use_tools:
+            self.tools_dict = {
             'code_interpreter': ci_tool,
             'sources_parser_and_summarizer': sp_tool,
             'file_operations_tools': fo_tool,
@@ -240,6 +256,8 @@ class Config:
             'browse_url': br_tool,
             # 'rag_vector_database': vdb_tool,
         }
+        else:
+            self.tools_dict = {}
 
         # Common attributes
         self.assistant_name = assistant_name
@@ -337,7 +355,7 @@ Given the conversation so far, evaluate the assistant response on correctness an
             'del_steering': del_steering,
             'n_thread': self.n_thread,
             'use_guidance': self.use_guidance,
-            'n_samples': 9999,
+            'n_samples': None,
             'use_cloud': self.use_cloud,
             'use_wandb': self.use_wandb,
             # Context and instructions (would need to be defined)
@@ -371,7 +389,7 @@ Given the conversation so far, evaluate the assistant response on correctness an
             'eval_max_iter': eval_max_iter,
             'eval_use_agent_steering': eval_use_agent_steering,
             'n_thread': self.n_thread,
-            'n_samples': 99999,
+            'n_samples': None,
             'use_cloud': self.use_cloud,
             'use_wandb': self.use_wandb,
             'hypothesis': f"Software developer assistant that can be used as a tool for developing advanced software.",
@@ -398,7 +416,7 @@ Given the conversation so far, evaluate the assistant response on correctness an
 * Before taking action always plan the best steps to solve the problem, you can use the tools as many times as you need and update your plan based on the new information gathered until the goal is achieved.
             """,
             'img': None,
-            'user_message': 'Sum 1 + 1',
+            'user_message': 'Suma 1 + 1 en el interpreter de eigenlib',
             'history': history or {}
         }
         return cfg | (update or {})

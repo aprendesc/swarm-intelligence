@@ -1,4 +1,5 @@
 import json
+import os
 
 class ServerTool:
     def __init__(self, method, default_config, tool_name, tool_description, tool_args):
@@ -7,25 +8,24 @@ class ServerTool:
         self.tool_description = tool_description
         self.tool_args = tool_args
         self.default_config = default_config
+        self.server_config = {
+            'master_address': "localhost:5001",
+            'client_name': os.environ['PACKAGE_NAME'] + '_client',
+            'password': 'test_pass',
+            'delay': 1,
+            'target_node': 'swarmautomations_node',
+            'payload': {},
+        }
 
     def initialize(self):
         pass
 
     def run(self, config):
-        from swarmcompute.main import Main as SCMain
         config = config | self.default_config
         try:
-            sc_config = {
-                'master_address': 'tcp://localhost:5005',
-                'password': 'internal_pass',
-                'node_name': 'client_node',
-                'address_node': 'project_dev_node',
-                'payload': {'method': self.method, 'config': config},
-                'delay': 0.1,
-            }
-            sc_main = SCMain()
-            new_config = sc_main.launch_client(sc_config)['response']
-            results = new_config['result']
+            server_config = self.server_config
+            server_config['payload'] = {'method': self.method, 'config': config}
+            results = self._call_MCP_server(server_config)['result']
         except Exception as e:
             results = {'error':str(e) + '->The tool server failed. Stop the execution and inform the user.'}
         return json.dumps(results)
@@ -57,3 +57,21 @@ class ServerTool:
                 },
             },
         }
+
+    def _call_MCP_server(self, config):
+        from eigenlib.utils.network_io import NetworkIO
+        ################################################################################################################
+        MASTER_ADDRESS = config['master_address']
+        client_name = config['client_name']
+        delay = config['delay']
+        password = config['password']
+        target_node = config['target_node']
+        payload = config['payload']
+        ################################################################################################################
+        client = NetworkIO()
+        client.launch_node(node_name=client_name, master_address=MASTER_ADDRESS, node_method=lambda: "OK", delay=delay, password=password)
+        resultado = client.call(target_node=target_node, payload=payload)
+        client.stop()
+        config['result'] = resultado
+        print(resultado)
+        return config
