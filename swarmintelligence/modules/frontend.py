@@ -12,7 +12,7 @@ Setup(verbose=True).init()
 
 class SimpleChatInterface:
     def __init__(self):
-        self.HISTORY_DIR = Path("chat_history")
+        self.HISTORY_DIR = Path("data/raw/chat_history")
         self.HISTORY_DIR.mkdir(exist_ok=True)
 
     def run(self):

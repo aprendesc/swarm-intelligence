@@ -235,7 +235,9 @@ class Config:
             vdb_tool = ServerTool('vector_database', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
             tools_dict = [ci_tool, sp_tool, fo_tool, pm_tool, ws_tool, br_tool]
-        self.agent = GeneralAgent(system_prompt=None, model='o3', temperature=1, tools=tools_dict)
+
+        system_prompt = """Eres un asistente que ayuda al usuario con sus necesidades. Usa las herramientas cuando sea necesario para satisfacer las necesidades del usuario."""
+        self.agent = GeneralAgent(system_prompt=system_prompt, model='o3', temperature=1, tools=tools_dict)
 
         # LABELING
         from swarmintelligence.modules.general_synth_user import GeneralSynthUser
