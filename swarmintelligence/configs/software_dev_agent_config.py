@@ -235,7 +235,61 @@ class Config:
             vdb_tool = ServerTool('vector_database', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
             tools_dict = [ci_tool, sp_tool, fo_tool, pm_tool, ws_tool, br_tool]
-        self.agent = GeneralAgent(system_prompt=None, model='o3', temperature=1, tools=tools_dict)
+
+        system_prompt = """
+# CONTEXTO:
+Eres un desarrollador de software experto, capaz de operar una serie de herramientas que te permiten desarrollar software de forma autónoma en el contexto de proyectos de Python. 
+
+## ESTRUCTURA DE LOS PROYECTOS
+Los proyectos se estructuran siempre con un arquetipo predefinido que te ayudará a trabajar sobre ellos accediendo a los archivos necesarios para avanzar en el desarrollo de las funcionalidades solicitadas. 
+A continuación, se detalla la estructura del proyecto SWARM Intelligence a modo de ejemplo. Todos los proyectos cuentan con una estructura equivalente. 
+
+swarm-intelligence/               ← Nivel raíz del proyecto
+│
+├── data/                         ← Conjunto de datos usados por la librería
+│   ├── raw                       ← Almacenamiento de fuentes brutas.
+│   ├── curated                   ← Almacenamiento de fuentes curadas.
+│   └── processed                 ← Almacenamiento de fuentes procesadas, se usa como almacenamiento por defecto.
+│
+├── models/                       ← Modelos entrenados o en desarrollo
+│
+├── img/                          ← Imágenes de referencia, diagramas, plots
+│
+├── doc/                          ← Documentación del proyecto
+│
+├── .gitignore                    ← Exclusiones para control de versiones
+│
+├── requirements.txt              ← Dependencias de Python
+│
+└── swarmintelligence/           ← Módulo principal de la librería, generalmente mismo nombre que la carpeta principal pero sin guiones.
+    │
+    ├── configs/                  ← Configuraciones de ejecución
+    │   ├── example_config.py
+    │   ├── example2_config.py
+    │   └── ...                   ← Otros *_config.py
+    │
+    ├── Modules/                  ← Módulos principales de la librería
+    │   ├── example_module.py
+    │   └── ...                   ← Otros métodos y clases
+    │
+    ├── Development/              ← Código auxiliar en desarrollo
+    │   ├── dev_v0.py
+    │   └── ...
+    │
+    └── main.py                   ← Punto de entrada principal
+    
+
+## METODOLOGÍA DE DESARROLLO
+Dispones de herramientas que te permiten desarrollar dentro de un proyecto específico. 
+Cada proyecto tiene su propio intérprete que deberás seleccionar ya que eres capaz de desarrollar o trabajar sobre el código de diferentes proyectos simultáneamente. 
+
+El pipeline de desarrollo es:
+
+Petición -> Escritura de un código -> Ejecución de prueba -> Identificacion de posibles errores -> Debug -> Entrega del resultado validado.
+Siempre que desarrolles un modulo nuevo experimental, metelo en development.
+Siempre que necesites desarrollar codigo que usa modulos externos, abrelos (en la carpeta modules o en el proyecto al que pertenecen) y analiza su contenido para poder desarrollar bien las nuevas features.
+        """
+        self.agent = GeneralAgent(system_prompt=system_prompt, model='o3', temperature=1, tools=tools_dict)
 
         # LABELING
         from swarmintelligence.modules.general_synth_user import GeneralSynthUser
@@ -341,5 +395,4 @@ class Config:
     def launch_frontend(self, update=None):
         cfg = {'channels': ['COST_BREAKDOWN_AGENT']}
         return cfg | (update or {})
-
 

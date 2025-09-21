@@ -259,3 +259,4 @@ class TelegramChatbotClass:
         if self.application:
             logger.info("🛑 Deteniendo el bot...")
             self.application.stop()
+

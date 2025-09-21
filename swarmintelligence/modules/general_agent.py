@@ -3,18 +3,18 @@ from eigenlib.genai.memory import Memory
 import json
 
 class GeneralAgent:
-    def __init__(self, system_prompt=None, model='o3', temperature=1, tools=[]):
+    def __init__(self, system_prompt=None, model='o3', client='oai_2', temperature=1, tools=[]):
         self.id = 'GENERAL_AGENT'
         self.system_prompt = system_prompt
         self.model = model
-        self.client = 'oai_2'
+        self.client = client
         self.temperature = temperature
         self.tool_choice = 'auto'
         self.use_steering = True
         self.tools = tools
 
     def initialize(self, memory=Memory(), agent_config=None):
-        self.tools_dict = {t().tool_name: t() for t in self.tools}
+        self.tools_dict = {t.tool_name: t for t in self.tools}
         self.LLM = LLMClient(client=self.client)
         memory.log(role='system', modality='text', content=self.system_prompt, channel=self.id)
         return memory
@@ -52,7 +52,7 @@ class GeneralAgent:
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
-    agent = CostBreakDownAgent()
+    agent = GeneralAgent()
     memory = agent.initialize()
     memory, answer = agent.call(memory=memory, user='Hazme un EDA basico de la tabla de escandallos.')
     print(answer)

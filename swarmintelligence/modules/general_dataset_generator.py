@@ -3,7 +3,7 @@ import numpy as np
 from eigenlib.utils.dataset_io import DatasetIO
 
 
-class EnvConfigEscandallosDatasetGenerator:
+class EnvConfigGeneralDatasetGenerator:
     def __init__(self):
         pass
 
