@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Any, Dict, List, Optional
 from eigenlib.utils.notion_io import NotionIO
 import types
@@ -293,8 +294,9 @@ class NotionTool:
 # Ejemplos de uso (para probar)
 # ===========================
 if __name__ == "__main__":
-    NOTION_TOKEN = "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"
-    tool = NotionTool(auth_token=NOTION_TOKEN)
+    from dotenv import load_dotenv
+    load_dotenv()
+    tool = NotionTool(auth_token=os.environ['NOTION_TOKEN'])
 
 
     def make_payload(arguments: dict):
