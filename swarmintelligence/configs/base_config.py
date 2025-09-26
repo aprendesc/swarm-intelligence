@@ -7,6 +7,10 @@ class Config:
         self.gen = EnvConfigGeneralDatasetGenerator()
         self.dataset_size = 3
 
+        self.interface = {
+            'parametro_1': 'Test_param',
+        }
+
         # AGENT
         from swarmintelligence.modules.general_agent import GeneralAgent
         """Tools Setup"""
@@ -258,6 +262,7 @@ class Config:
         self.version = version
         self.sample = sample
         self.experiment_id = 'swarmintelligence'
+
 
     def initialize(self, update=None):
         cfg = {

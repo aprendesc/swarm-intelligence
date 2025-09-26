@@ -1,17 +1,28 @@
+from swarmintelligence.modules.general_dataset_generator import EnvConfigGeneralDatasetGenerator
+from swarmintelligence.modules.general_agent import GeneralAgent
+from swarmintelligence.modules.general_synth_user import GeneralSynthUser
 from swarmintelligence.modules.server_tool import ServerTool
 
 class Config:
-    def __init__(self, version='v5', sample=None):
-        # DATASET
-        from swarmintelligence.modules.general_dataset_generator import EnvConfigGeneralDatasetGenerator
-        self.gen = EnvConfigGeneralDatasetGenerator()
-        self.dataset_size = 3
+    def __init__(self, project_folder='swarm-intelligence', sample=None):
+        self.project_folder = project_folder
+        environments = [
+                    "jedipoc",
+                    "swarmintelligence",
+                    "swarmautomations",
+                    'swarmml',
+                    'swarmcompute',
+                    'eigenlib'
+                        ]
+        self.memory_file = './data/raw/agent_memory/' + self.project_folder + '/memory_1.pkl'
+        self.agent_name = 'software_engineer_assistant'
+        self.interface = {
+            'parametro_1': 'Test_param',
+        }
 
         # AGENT
-        from swarmintelligence.modules.general_agent import GeneralAgent
         """Tools Setup"""
         if True:
-            environments = ["jedipoc", "swarmintelligence", "swarmautomations", 'swarmml', 'swarmcompute', 'eigenlib']
             # CODE INTERPRETER TOOL SETUP
             environ_arg = [{
                 "name": "selected_project",
@@ -195,18 +206,18 @@ class Config:
                                 "description": "List of URLs to browse.",
                                 "required": True,
                             },
-                            {
-                                "name": "query",
-                                "type": "string",
-                                "description": "Original user query (used only when summarising).",
-                                "required": False,
-                            },
-                            {
-                                "name": "summarize_search",
-                                "type": "boolean",
-                                "description": "True to summarise the browsed content. Default False.",
-                                "required": False,
-                            },
+                            # {
+                            #     "name": "query",
+                            #     "type": "string",
+                            #     "description": "Original user query (used only when summarising).",
+                            #     "required": False,
+                            # },
+                            # {
+                            #     "name": "summarize_search",
+                            #     "type": "boolean",
+                            #     "description": "True to summarise the browsed content. Default False.",
+                            #     "required": False,
+                            # },
                         ] + environ_arg
             br_tool = ServerTool('browse_url', tool_name=tool_name, tool_description=tool_description, default_config=default_config, tool_args=tool_args)
 
@@ -236,15 +247,15 @@ class Config:
 
             tools_dict = [ci_tool, sp_tool, fo_tool, pm_tool, ws_tool, br_tool]
 
-        system_prompt = """
+        system_prompt = f"""
 # CONTEXTO:
 Eres un desarrollador de software experto, capaz de operar una serie de herramientas que te permiten desarrollar software de forma autónoma en el contexto de proyectos de Python. 
 
 ## ESTRUCTURA DE LOS PROYECTOS
 Los proyectos se estructuran siempre con un arquetipo predefinido que te ayudará a trabajar sobre ellos accediendo a los archivos necesarios para avanzar en el desarrollo de las funcionalidades solicitadas. 
-A continuación, se detalla la estructura del proyecto SWARM Intelligence a modo de ejemplo. Todos los proyectos cuentan con una estructura equivalente. 
+A continuación, se detalla la estructura del proyecto {self.project_folder} a modo de ejemplo. Todos los proyectos cuentan con una estructura equivalente. 
 
-swarm-intelligence/               ← Nivel raíz del proyecto
+{self.project_folder}/               ← Nivel raíz del proyecto
 │
 ├── data/                         ← Conjunto de datos usados por la librería
 │   ├── raw                       ← Almacenamiento de fuentes brutas.
@@ -291,29 +302,32 @@ Siempre que necesites desarrollar codigo que usa modulos externos, abrelos (en l
         """
         self.agent = GeneralAgent(system_prompt=system_prompt, model='o3', temperature=1, tools=tools_dict)
 
+        # DATASET
+        self.gen = EnvConfigGeneralDatasetGenerator()
+        self.dataset_size = 3
+
         # LABELING
-        from swarmintelligence.modules.general_synth_user import GeneralSynthUser
         self.user = GeneralSynthUser()
-        self.env_config_dataset = './data/processed/personal_assistant_dataset'
-        self.env_config_train_dataset = './data/processed/personal_assistant_train_dataset'
-        self.env_config_train_history = './data/processed/personal_assistant_train_history'
-        self.env_config_test_dataset = './data/processed/personal_assistant_test_dataset'
-        self.env_config_test_history = './data/processed/personal_assistant_test_history'
+        self.env_config_dataset = f'./data/processed/{self.project_folder}_dataset'
+        self.env_config_train_dataset = f'./data/processed/{self.project_folder}_train_dataset'
+        self.env_config_train_history = f'./data/processed/{self.project_folder}_train_history'
+        self.env_config_test_dataset = f'./data/processed/{self.project_folder}_test_dataset'
+        self.env_config_test_history = f'./data/processed/{self.project_folder}_test_history'
 
         #FINE TUNING
         self.ft_dataset = './data/processed/ft_dataset'
-        self.ft_model = 'gpt-4.1'
+        self.ft_model = 'o4-mini'
         self.tools_register = ''
         self.channel = 'PERSONAL_AGENT'
 
         # GENERAL
-        self.version = version
         self.sample = sample
-        self.experiment_id = 'swarmintelligence'
+        self.experiment_id = self.agent_name
 
     def initialize(self, update=None):
         cfg = {
             'agent': self.agent,
+            'memory_file': self.memory_file,
         }
         return cfg | (update or {})
 
@@ -388,11 +402,11 @@ Siempre que necesites desarrollar codigo que usa modulos externos, abrelos (en l
     def predict(self, update=None):
         cfg = {
             'user_message': 'Busca en google sobre el F22 en el proyecto swarmintelligence y abrelo en browser para extraer la relacion empuje peso.',
-            'memory': [],
+            'history': [],
         }
         return cfg | (update or {})
 
     def launch_frontend(self, update=None):
-        cfg = {'channels': ['COST_BREAKDOWN_AGENT']}
+        cfg = {'channels': ['GENERAL_AGENT']}
         return cfg | (update or {})
 

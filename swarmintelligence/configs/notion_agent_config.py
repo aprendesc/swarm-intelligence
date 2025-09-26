@@ -1,17 +1,27 @@
 from datetime import date
 
 class Config:
-    def __init__(self, version='v5', sample=None):
+    def __init__(self, sample=None):
+        self.agent_name = 'notion_manager_assistant'
+        self.memory_file = './data/raw/agent_memory/' + self.project_folder
+
+        self.memory_file = './data/raw/notion_agent_memory/memory_1.pkl'
         # TOOL SETUP
         from eigenlib.utils.notion_io import NotionIO
-        from swarmintelligence.modules.notion_tool import NotionTool
-        notion_token = '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'
+        from swarmintelligence.modules.notion_toolbox import NotionTool
+        notion_token = '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'
         database_id = "2262a599-e985-8017-9faf-dd11b3b8df8b"
-        notion_tool = NotionTool(auth_token=notion_token, database_id=database_id)
-        tools_dict = [notion_tool]
+
+        self.interface = {
+            'parameter_1': '1',
+            'parameter_2': '2',
+        }
 
         database_df = NotionIO(auth_token=notion_token).get_database_pages(database_id=database_id)
         active_projects = list(set(database_df['Project'].sum()))
+
+        notion_tool = NotionTool(auth_token=notion_token, database_id=database_id, ALLOWED_PROJECTS=active_projects)
+        tools_dict = [notion_tool]
 
         system_prompt = f"""
 # CONTEXTO:
@@ -62,7 +72,6 @@ Si es necesario, ejecuta este metodo siempre primero para tener un overview del 
         from swarmintelligence.modules.general_agent import GeneralAgent
         self.agent = GeneralAgent(system_prompt=system_prompt, model='o3', temperature=1, tools=tools_dict)
 
-
         if True:
             # DATASET
             from swarmintelligence.modules.general_dataset_generator import EnvConfigGeneralDatasetGenerator
@@ -72,26 +81,26 @@ Si es necesario, ejecuta este metodo siempre primero para tener un overview del 
             # LABELING
             from swarmintelligence.modules.general_synth_user import GeneralSynthUser
             self.user = GeneralSynthUser()
-            self.env_config_dataset = './data/processed/notion_assistant_dataset'
-            self.env_config_train_dataset = './data/processed/notion_assistant_train_dataset'
-            self.env_config_train_history = './data/processed/notion_assistant_train_history'
-            self.env_config_test_dataset = './data/processed/notion_assistant_test_dataset'
-            self.env_config_test_history = './data/processed/notion_assistant_test_history'
+            self.env_config_dataset = f'./data/processed/{self.agent_name}_dataset'
+            self.env_config_train_dataset = f'./data/processed/{self.agent_name}_train_dataset'
+            self.env_config_train_history = f'./data/processed/{self.agent_name}_train_history'
+            self.env_config_test_dataset = f'./data/processed/{self.agent_name}_test_dataset'
+            self.env_config_test_history = f'./data/processed/{self.agent_name}_test_history'
 
             #FINE TUNING
             self.ft_dataset = './data/processed/ft_dataset'
-            self.ft_model = 'gpt-4.1'
+            self.ft_model = 'o4-mini'
             self.tools_register = ''
             self.channel = 'NOTION_AGENT'
 
             # GENERAL
-            self.version = version
             self.sample = sample
-            self.experiment_id = 'swarmintelligence'
+            self.experiment_id = self.agent_name
 
     def initialize(self, update=None):
         cfg = {
             'agent': self.agent,
+            'memory_file': self.memory_file,
         }
         return cfg | (update or {})
 
@@ -171,7 +180,7 @@ Si es necesario, ejecuta este metodo siempre primero para tener un overview del 
         return cfg | (update or {})
 
     def launch_frontend(self, update=None):
-        cfg = {'channels': ['COST_BREAKDOWN_AGENT']}
+        cfg = {'channels': ['NOTION_AGENT']}
         return cfg | (update or {})
 
     def telegram_chatbot_run(self, update=None):

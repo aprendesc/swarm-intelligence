@@ -144,7 +144,6 @@ class Main:
             time.sleep(1)
             print('Telegram running')
 
-
 if __name__ == '__main__':
     from swarmintelligence.configs.notion_agent_config import Config
     cfg = Config()
