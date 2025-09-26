@@ -7,12 +7,37 @@ from swarmintelligence.modules.files_browser_toolbox import FilesBrowserToolbox
 from swarmintelligence.modules.notion_toolbox import NotionToolbox
 from eigenlib.genai.memory import Memory
 from swarmintelligence.modules.memory_manager import MemoryManager
+import os
+from pathlib import Path
 
 class SwarmIntelligenceAgent:
     def __init__(self):
         # CONFIGURATION
         self.id = 'SI_AGENT'
         self.project_folder = 'swarm-intelligence'
+
+        def buscar_archivos(ruta_raiz, patron="*", *, dirs_excluidos=None, exts_excluidas=None):
+            """
+            Generador que busca archivos recursivamente, excluyendo de forma eficiente
+            los directorios y extensiones especificados.
+            """
+            dirs_excluidos = dirs_excluidos or set()
+            exts_excluidas = exts_excluidas or set()
+
+            for raiz, dirs, archivos in os.walk(ruta_raiz):
+                # Poda el árbol de búsqueda para no entrar en directorios excluidos
+                dirs[:] = [d for d in dirs if d not in dirs_excluidos]
+
+                for nombre_archivo in archivos:
+                    p = Path(raiz) / nombre_archivo
+                    if p.suffix not in exts_excluidas and p.match(patron):
+                        yield str(p)
+
+        # --- 1. Configuración central de las exclusiones ---
+        DIRECTORIOS_EXCLUIDOS = {".venv", "__pycache__", ".git", "build", "dist"}
+        EXTENSIONES_EXCLUIDAS = {".jpg", ".jpeg", ".png", ".gif", ".pkl"}
+        archivos_py_swarm = list(buscar_archivos(".", "*", dirs_excluidos=DIRECTORIOS_EXCLUIDOS, exts_excluidas=EXTENSIONES_EXCLUIDAS))
+        archivos_py_eigen = list(buscar_archivos("../eigenlib", "*", dirs_excluidos=DIRECTORIOS_EXCLUIDOS, exts_excluidas=EXTENSIONES_EXCLUIDAS))
         self.system_prompt = f"""
 # CONTEXTO:
 Eres un desarrollador de software experto, capaz de operar una serie de herramientas que te permiten desarrollar software de forma autónoma en el contexto de proyectos de Python. 
@@ -21,40 +46,14 @@ Eres un desarrollador de software experto, capaz de operar una serie de herramie
 Los proyectos se estructuran siempre con un arquetipo predefinido que te ayudará a trabajar sobre ellos accediendo a los archivos necesarios para avanzar en el desarrollo de las funcionalidades solicitadas. 
 A continuación, se detalla la estructura del proyecto {self.project_folder} a modo de ejemplo. Todos los proyectos cuentan con una estructura equivalente. 
 
-{self.project_folder}/               ← Nivel raíz del proyecto
-│
-├── data/                         ← Conjunto de datos usados por la librería
-│   ├── raw                       ← Almacenamiento de fuentes brutas.
-│   ├── curated                   ← Almacenamiento de fuentes curadas.
-│   └── processed                 ← Almacenamiento de fuentes procesadas, se usa como almacenamiento por defecto.
-│
-├── models/                       ← Modelos entrenados o en desarrollo
-│
-├── img/                          ← Imágenes de referencia, diagramas, plots
-│
-├── doc/                          ← Documentación del proyecto
-│
-├── .gitignore                    ← Exclusiones para control de versiones
-│
-├── requirements.txt              ← Dependencias de Python
-│
-└── swarmintelligence/           ← Módulo principal de la librería, generalmente mismo nombre que la carpeta principal pero sin guiones.
-    │
-    ├── configs/                  ← Configuraciones de ejecución
-    │   ├── example_config.py
-    │   ├── example2_config.py
-    │   └── ...                   ← Otros *_config.py
-    │
-    ├── Modules/                  ← Módulos principales de la librería
-    │   ├── example_module.py
-    │   └── ...                   ← Otros métodos y clases
-    │
-    ├── Development/              ← Código auxiliar en desarrollo
-    │   ├── dev_v0.py
-    │   └── ...
-    │
-    └── main.py                   ← Punto de entrada principal
-    
+Para acceder a la raiz de archivos de {self.project_folder} la ruta es '.'
+Para acceder a la raiz de archivos de eigenlib la ruta es '../eigenlib'
+
+## ARCHIVOS EN {self.project_folder}
+{archivos_py_swarm}
+
+## ARCHIVOS EN EIGENLIB
+{archivos_py_eigen}
 
 ## METODOLOGÍA DE DESARROLLO
 Dispones de herramientas que te permiten desarrollar dentro de un proyecto específico. 

@@ -123,16 +123,14 @@ class SimpleChatInterface:
 
 
                     with st.spinner("🤔 Pensando..."):
-                        try:
-                            memory = Memory()
-                            memory.history = pd.DataFrame(st.session_state.history)
-                            memory, answer = st.session_state.agent.call(**{'memory': memory, 'user_message': prompt, 'img': None})
-                            if answer:
-                                st.session_state.history = memory.history.to_dict(orient='records')
-                                pickle.dump(st.session_state.history, open(st.session_state.memory_file, "wb"))
-                                st.rerun()
-                        except Exception as e:
-                            st.error(f"❌ Error procesando mensaje: {e}")
+                        memory = Memory()
+                        memory.history = pd.DataFrame(st.session_state.history)
+                        memory, answer = st.session_state.agent.call(**{'memory': memory, 'user_message': prompt, 'img': None})
+                        if answer:
+                            st.session_state.history = memory.history.to_dict(orient='records')
+                            pickle.dump(st.session_state.history, open(st.session_state.memory_file, "wb"))
+                            st.rerun()
+
 
     def _show_edit_interface(self):
         """Muestra la interfaz de edición de mensajes."""
