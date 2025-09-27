@@ -1,5 +1,6 @@
 import os
 import json
+from pathlib import Path
 from eigenlib.genai.llm_client import LLMClient
 from swarmintelligence.modules.code_interpreter_toolbox import InterpreterToolbox
 from swarmintelligence.modules.web_search_toolbox import WebSearchToolbox
@@ -7,8 +8,6 @@ from swarmintelligence.modules.files_browser_toolbox import FilesBrowserToolbox
 from swarmintelligence.modules.notion_toolbox import NotionToolbox
 from eigenlib.genai.memory import Memory
 from swarmintelligence.modules.memory_manager import MemoryManager
-import os
-from pathlib import Path
 
 class SwarmIntelligenceAgent:
     def __init__(self):
@@ -33,7 +32,8 @@ class SwarmIntelligenceAgent:
                     if p.suffix not in exts_excluidas and p.match(patron):
                         yield str(p)
 
-        # --- 1. Configuración central de las exclusiones ---
+        # PROMPT BUILDING
+        from eigenlib.utils.notion_io import NotionIO
         DIRECTORIOS_EXCLUIDOS = {".venv", "__pycache__", ".git", "build", "dist"}
         EXTENSIONES_EXCLUIDAS = {".jpg", ".jpeg", ".png", ".gif", ".pkl"}
         archivos_py_swarm = list(buscar_archivos(".", "*", dirs_excluidos=DIRECTORIOS_EXCLUIDOS, exts_excluidas=EXTENSIONES_EXCLUIDAS))
@@ -65,6 +65,7 @@ Petición -> Escritura de un código -> Ejecución de prueba -> Identificacion d
 Siempre que desarrolles un modulo nuevo experimental, metelo en development.
 Siempre que necesites desarrollar codigo que usa modulos externos, abrelos (en la carpeta modules o en el proyecto al que pertenecen) y analiza su contenido para poder desarrollar bien las nuevas features.
         """
+
         self.memory_file = './data/raw/si_agent_memory.pkl'
         self.model = 'o3'
         self.client = 'oai_2'
