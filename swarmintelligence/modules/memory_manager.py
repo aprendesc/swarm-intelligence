@@ -17,20 +17,21 @@ class MemoryManager:
         last_false_idx = history[history['steering'] == True].index.max()
         history = history[(history['steering'] == False) | (history.index == last_false_idx)]
 
-
-        # SHORT TERM MEMORY
-        history['cum_tokens'] = history['n_tokens'].iloc[::-1].cumsum().iloc[::-1]
-        st_history = history[(history["role"] == "system") | (history["cum_tokens"] <= self.memory_threshold)]
-        lt_history = history[(history["cum_tokens"] > self.memory_threshold)]
-
-        # LONG TERM MEMORY
         def convert_emb(x):
             try:
                 return eval(x)
             except:
                 return None
-
         history['embedding'] = history['embedding'].apply(lambda x: convert_emb(x))
+
+        # SHORT TERM MEMORY
+        history['cum_tokens'] = history['n_tokens'].iloc[::-1].cumsum().iloc[::-1]
+
+        # LONG TERM MEMORY
+        st_history = history[(history["role"] == "system") | (history["cum_tokens"] <= self.memory_threshold)]
+        lt_history = history[(history["cum_tokens"] > self.memory_threshold)]
+
+
 
         if len(lt_history) > 0:
             lt_history = self.ec.get_similarity(lt_history, "embedding", query, sort=False)
