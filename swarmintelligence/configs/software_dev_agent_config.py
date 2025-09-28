@@ -1,6 +1,6 @@
-from swarmintelligence.modules.general_dataset_generator import EnvConfigGeneralDatasetGenerator
+from eigenlib.genai.environments.general_dataset_generator import EnvConfigGeneralDatasetGenerator
 from swarmintelligence.modules.general_agent import GeneralAgent
-from swarmintelligence.modules.general_synth_user import GeneralSynthUser
+from eigenlib.genai.environments.general_synth_user import GeneralSynthUser
 from swarmintelligence.modules.server_tool import ServerTool
 
 class Config:

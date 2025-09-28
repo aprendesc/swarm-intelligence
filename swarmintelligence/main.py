@@ -45,8 +45,8 @@ class Main:
         return config
 
     def evaluation(self, config):
-        from eigenlib.genai.base_simulator import BaseSimulator
-        from eigenlib.genai.base_environment import BaseEnvironment
+        from eigenlib.genai.environments.base_simulator import BaseSimulator
+        from eigenlib.genai.environments.base_environment import BaseEnvironment
         from eigenlib.utils.dataset_io import DatasetIO
         ################################################################################################################
         experiment_id = config['experiment_id']
@@ -99,7 +99,7 @@ class Main:
         return config
 
     def predict(self, config):
-        from eigenlib.genai.memory import Memory
+        from eigenlib.genai.utils.memory import Memory
         history = config['history']
         user_message = config['user_message']
         ################################################################################################################
@@ -116,7 +116,7 @@ class Main:
         import os
         from eigenlib.utils.console_io import Console
         ################################################################################################################
-        file = os.path.join(os.environ["BASE_PATH"], os.environ['PROJECT_FOLDER'], os.environ['PACKAGE_NAME'], 'modules/frontend.py')
+        file = os.path.join(os.environ["BASE_PATH"], os.environ['PROJECT_FOLDER'], os.environ['PACKAGE_NAME'], 'modules/chat_frontend.py')
         project_root = os.path.join(os.environ["BASE_PATH"], os.environ['PROJECT_FOLDER'])
         eigenlib_root = os.path.join(os.environ["BASE_PATH"], 'eigenlib')
         Console(backend='cmd').run(command=f'set PYTHONPATH={eigenlib_root};{project_root} && streamlit run ' + file)
@@ -125,7 +125,7 @@ class Main:
     def telegram_chatbot_run(self, config):
         from dotenv import load_dotenv
         load_dotenv()
-        from swarmintelligence.modules.telegram_chatbot import TelegramChatbotClass
+        from eigenlib.UI.telegram_chatbot import TelegramChatbotClass
         from swarmintelligence.configs.notion_agent_config import Config
         cfg = Config()
         self.initialize(cfg.initialize())

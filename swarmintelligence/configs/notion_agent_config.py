@@ -8,7 +8,7 @@ class Config:
         self.memory_file = './data/raw/notion_agent_memory/memory_1.pkl'
         # TOOL SETUP
         from eigenlib.utils.notion_io import NotionIO
-        from swarmintelligence.modules.notion_toolbox import NotionTool
+        from eigenlib.genai.tools.notion_toolbox import NotionTool
         notion_token = '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'
         database_id = "2262a599-e985-8017-9faf-dd11b3b8df8b"
 
@@ -74,12 +74,12 @@ Si es necesario, ejecuta este metodo siempre primero para tener un overview del 
 
         if True:
             # DATASET
-            from swarmintelligence.modules.general_dataset_generator import EnvConfigGeneralDatasetGenerator
+            from eigenlib.genai.environments.general_dataset_generator import EnvConfigGeneralDatasetGenerator
             self.gen = EnvConfigGeneralDatasetGenerator()
             self.dataset_size = 3
 
             # LABELING
-            from swarmintelligence.modules.general_synth_user import GeneralSynthUser
+            from eigenlib.genai.environments.general_synth_user import GeneralSynthUser
             self.user = GeneralSynthUser()
             self.env_config_dataset = f'./data/processed/{self.agent_name}_dataset'
             self.env_config_train_dataset = f'./data/processed/{self.agent_name}_train_dataset'

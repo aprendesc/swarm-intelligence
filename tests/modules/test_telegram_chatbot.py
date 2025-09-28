@@ -1,4 +1,3 @@
-from swarmintelligence.modules.telegram_chatbot import TelegramChatbotClass
 import unittest
 
 class TestTelegramChatbotClass(unittest.TestCase):

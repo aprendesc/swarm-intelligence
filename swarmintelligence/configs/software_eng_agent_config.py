@@ -1,9 +1,9 @@
-from swarmintelligence.modules.general_dataset_generator import EnvConfigGeneralDatasetGenerator
+from eigenlib.genai.environments.general_dataset_generator import EnvConfigGeneralDatasetGenerator
 from swarmintelligence.modules.general_agent import GeneralAgent
-from swarmintelligence.modules.general_synth_user import GeneralSynthUser
-from swarmintelligence.modules.code_interpreter_toolbox import InterpreterTool
-from swarmintelligence.modules.web_search_toolbox import WebSearchTool
-from swarmintelligence.modules.files_browser_toolbox import FilesBrowserTool
+from eigenlib.genai.environments.general_synth_user import GeneralSynthUser
+from eigenlib.genai.tools.code_interpreter_toolbox import InterpreterTool
+from eigenlib.genai.tools.web_search_toolbox import WebSearchTool
+from eigenlib.genai.tools.files_browser_toolbox import FilesBrowserTool
 
 class Config:
     def __init__(self, sample=None):

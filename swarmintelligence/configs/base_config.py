@@ -3,7 +3,7 @@ from swarmintelligence.modules.server_tool import ServerTool
 class Config:
     def __init__(self, version='v5', sample=None):
         # DATASET
-        from swarmintelligence.modules.general_dataset_generator import EnvConfigGeneralDatasetGenerator
+        from eigenlib.genai.environments.general_dataset_generator import EnvConfigGeneralDatasetGenerator
         self.gen = EnvConfigGeneralDatasetGenerator()
         self.dataset_size = 3
 
@@ -244,7 +244,7 @@ class Config:
         self.agent = GeneralAgent(system_prompt=system_prompt, model='o3', temperature=1, tools=tools_dict)
 
         # LABELING
-        from swarmintelligence.modules.general_synth_user import GeneralSynthUser
+        from eigenlib.genai.environments.general_synth_user import GeneralSynthUser
         self.user = GeneralSynthUser()
         self.env_config_dataset = './data/processed/personal_assistant_dataset'
         self.env_config_train_dataset = './data/processed/personal_assistant_train_dataset'
