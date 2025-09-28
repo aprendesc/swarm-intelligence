@@ -19,7 +19,6 @@ class NotionToolbox:
     """
     def __init__(
         self,
-        auth_token: str,
         database_id: str = "2262a599-e985-8017-9faf-dd11b3b8df8b",
         ALLOWED_PROJECTS: Optional[List[str]] = None
     ):
@@ -29,7 +28,7 @@ class NotionToolbox:
         self.ALLOWED_PROJECTS = ALLOWED_PROJECTS
         self.tool_base = "notion_tool"  # base name (no se usa directamente)
         self.tool_description = "Operaciones CRUD y de contenido Markdown sobre Notion."
-        self.notion = NotionIO(auth_token=auth_token)
+        self.notion = NotionIO()
         self.database_id = database_id
 
         # Mapeo de funciones internas

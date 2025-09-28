@@ -33,7 +33,7 @@ class BacklogManagerAgent:
         ci_tool = InterpreterToolbox(python_executable='C:/Users/AlejandroPrendesCabo/Desktop/proyectos/swarm-intelligence/.venv/Scripts/python.exe', shell_executable='C:/Program Files/Git/bin/bash.exe')
         sp_tool = WebSearchToolbox(default_max_results=5, default_region="wt-wt")
         fb_tool = FilesBrowserToolbox()
-        n_tool = NotionToolbox(auth_token=os.environ['NOTION_TOKEN'], ALLOWED_PROJECTS=['swarm-intelligence', 'eigenlib'])
+        n_tool = NotionToolbox(ALLOWED_PROJECTS=['swarm-intelligence', 'eigenlib'])
         self.toolboxes = [ci_tool, sp_tool, fb_tool, n_tool]
 
     def initialize(self, memory=Memory()):
