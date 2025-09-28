@@ -156,7 +156,7 @@ class WebSearchToolbox:
             tools.append(tool_config)
         return tools
 
-    def call(self, tool_name, payload):
+    def call(self, tool_name, payload, memory):
         """
         Ejecuta la sub-herramienta específica con los argumentos proporcionados.
 
@@ -184,14 +184,14 @@ class WebSearchToolbox:
                 "role": "tool",
                 "name": tool_name,
                 "content": json.dumps(result, ensure_ascii=False)
-            }
+            }, memory
 
         except Exception as e:
             return {
                 "role": "tool",
                 "name": tool_name,
                 "content": json.dumps({"error": traceback.format_exc()})
-            }
+            }, memory
 
 if __name__ == "__main__":
     # Ejemplo de uso de WebSearchTool con filosofía multi-herramienta

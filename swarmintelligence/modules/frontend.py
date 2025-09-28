@@ -37,7 +37,7 @@ class SimpleChatInterface:
                     selected_config = st.selectbox("Seleccionar configuración:", configs, key="config_selector")
                     if st.button("🚀 Initialize"):
                         module = importlib.import_module((config_path + '/' + selected_config).replace('/', '.'))
-                        agent = getattr(module, "SwarmIntelligenceAgent")()
+                        agent = getattr(module, "ManagerAgent")()
                         st.success(f"Agente seleccionado")
                         memory = agent.initialize()
                         st.session_state.memory_file = agent.memory_file

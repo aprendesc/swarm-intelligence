@@ -55,6 +55,10 @@ if False:
     from eigenlib.genai.vector_database import VectorDatabase
 
 
+from datetime import date
+hoy = date.today()
+hoy_str = hoy.strftime("%Y-%m-%d")
+
 
 
 

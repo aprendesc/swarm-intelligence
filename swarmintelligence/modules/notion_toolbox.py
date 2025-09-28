@@ -59,8 +59,8 @@ class NotionToolbox:
                     "name": {"type": "string", "description": "Título de la página."},
                     "project": {
                         "type": "array",
-                        "items": {"type": "string", "enum": self.ALLOWED_PROJECTS},
-                        "description": f"Lista de proyectos. enum={self.ALLOWED_PROJECTS}"
+                        "items": {"type": "string"},
+                        "description": f"Lista de los proyectos a los que pertenece la pagina. Se trata como lista de tags."
                     },
                     "status": {"type": "string", "enum": ALLOWED_STATUS, "description": f"enum={ALLOWED_STATUS}"},
                     "target_date": {"type": "string", "description": "Fecha YYYY-MM-DD"},
@@ -123,30 +123,25 @@ class NotionToolbox:
     ) -> Dict[str, Any]:
         props: Dict[str, Any] = {}
         if name:
-            props["Name"] = name
+            props["name"] = name
 
         if project:
-            valid = [p for p in project if p in self.ALLOWED_PROJECTS]
-            if not valid and project:
-                # registrar advertencia en el logger de NotionIO
-                try:
-                    self.notion.logger.warning(f"Project items inválidos: {project}. Se ignorarán los inválidos.")
-                except Exception:
-                    pass
-            if valid:
-                props["Project"] = valid
+            props["project"] = project
 
         if status:
             if status not in ALLOWED_STATUS:
+                error_msg = f"Status inválido: {status}. Valores permitidos: {ALLOWED_STATUS}"
                 try:
-                    self.notion.logger.warning(f"Status inválido: {status}. Valores permitidos: {ALLOWED_STATUS}")
+                    self.notion.logger.warning(error_msg)
                 except Exception:
                     pass
+                # En lugar de solo loggear, devolver el error para que se comunique
+                raise ValueError(error_msg)
             else:
-                props["Status"] = status
+                props["status"] = status
 
         if target_date:
-            props["Target Date"] = target_date
+            props["target_date"] = target_date
 
         return props
 
@@ -160,11 +155,12 @@ class NotionToolbox:
             except Exception:
                 return {"pages": pages}
         except Exception as e:
+            error_msg = f"Error en get_database_pages: {str(e)}"
             try:
-                self.notion.logger.error(f"Error en get_database_pages: {e}")
+                self.notion.logger.error(error_msg)
             except Exception:
                 pass
-            return {"error": str(e)}
+            return {"error": error_msg}
 
     def _create_database_page(
         self,
@@ -188,16 +184,17 @@ class NotionToolbox:
         if missing:
             return {"error": f"Faltan argumentos obligatorios: {missing}"}
 
-        properties = self._build_properties_from_fixed_args(name, project, status, target_date)
         try:
+            properties = self._build_properties_from_fixed_args(name, project, status, target_date)
             page_id = self.notion.create_database_page(database_id=db_id, properties=properties, content=content)
             return {"page_id": page_id}
         except Exception as e:
+            error_msg = f"Error creando página: {str(e)}"
             try:
-                self.notion.logger.error(f"Error creando página: {e}")
+                self.notion.logger.error(error_msg)
             except Exception:
                 pass
-            return {"error": str(e)}
+            return {"error": error_msg}
 
     def _read_page_as_markdown(self, page_id: str) -> Any:
         if not page_id:
@@ -206,11 +203,12 @@ class NotionToolbox:
             md = self.notion.read_page_as_markdown(page_id=page_id)
             return {"markdown": md}
         except Exception as e:
+            error_msg = f"Error leyendo página: {str(e)}"
             try:
-                self.notion.logger.error(f"Error leyendo página: {e}")
+                self.notion.logger.error(error_msg)
             except Exception:
                 pass
-            return {"error": str(e)}
+            return {"error": error_msg}
 
     def _update_page_properties(
         self,
@@ -226,16 +224,17 @@ class NotionToolbox:
         if not any([name, project, status, target_date]):
             return {"error": "Se requiere al menos uno de: name, project, status, target_date"}
 
-        properties = self._build_properties_from_fixed_args(name, project, status, target_date)
         try:
+            properties = self._build_properties_from_fixed_args(name, project, status, target_date)
             ok = self.notion.update_page_properties(page_id=page_id, properties=properties)
             return {"ok": ok}
         except Exception as e:
+            error_msg = f"Error actualizando propiedades: {str(e)}"
             try:
-                self.notion.logger.error(f"Error actualizando propiedades: {e}")
+                self.notion.logger.error(error_msg)
             except Exception:
                 pass
-            return {"error": str(e)}
+            return {"error": error_msg}
 
     def _delete_page(self, page_id: str) -> Any:
         if not page_id:
@@ -244,11 +243,12 @@ class NotionToolbox:
             ok = self.notion.delete_page(page_id=page_id)
             return {"ok": ok}
         except Exception as e:
+            error_msg = f"Error borrando página: {str(e)}"
             try:
-                self.notion.logger.error(f"Error borrando página: {e}")
+                self.notion.logger.error(error_msg)
             except Exception:
                 pass
-            return {"error": str(e)}
+            return {"error": error_msg}
 
     def _write_page_content(self, page_id: str, content: str, clear_existing: bool = False) -> Any:
         if not page_id:
@@ -269,11 +269,12 @@ class NotionToolbox:
                 "content_length": len(content)
             }
         except Exception as e:
+            error_msg = f"Error escribiendo contenido Markdown: {str(e)}"
             try:
-                self.notion.logger.error(f"Error escribiendo contenido Markdown: {e}")
+                self.notion.logger.error(error_msg)
             except Exception:
                 pass
-            return {"error": str(e)}
+            return {"error": error_msg}
 
     # ---------- Interfaz para OpenAI (get_tools + call) ----------
     def initialize(self) -> List[Dict[str, Any]]:
@@ -298,7 +299,7 @@ class NotionToolbox:
             tools.append(tool_config)
         return tools
 
-    def call(self, tool_name: str, payload: Any) -> Dict[str, Any]:
+    def call(self, tool_name: str, payload: Any, memory):
         """
         Ejecuta la sub-tool indicada por `tool_name`. `payload` puede ser:
          - un objeto con payload.function.arguments (como SimpleNamespace en tests)
@@ -313,18 +314,37 @@ class NotionToolbox:
                 "role": "tool",
                 "name": tool_name,
                 "content": json.dumps({"error": f"Herramienta '{tool_name}' no encontrada"})
-            }
+            }, memory
 
         # Obtener args
-        if hasattr(payload, "function") and hasattr(payload.function, "arguments"):
-            args = json.loads(payload.function.arguments)
-        elif isinstance(payload, dict):
-            args = payload.copy()
-        else:
-            raise ValueError("payload inesperado. Se esperaba objeto con payload.function.arguments o dict.")
+        try:
+            if hasattr(payload, "function") and hasattr(payload.function, "arguments"):
+                args = json.loads(payload.function.arguments)
+            elif isinstance(payload, dict):
+                args = payload.copy()
+            else:
+                return {
+                    "role": "tool",
+                    "name": tool_name,
+                    "content": json.dumps({"error": "payload inesperado. Se esperaba objeto con payload.function.arguments o dict."})
+                }, memory
+        except json.JSONDecodeError as je:
+            return {
+                "role": "tool",
+                "name": tool_name,
+                "content": json.dumps({"error": f"Error al parsear argumentos JSON: {str(je)}"})
+            }, memory
+        except Exception as pe:
+            return {
+                "role": "tool",
+                "name": tool_name,
+                "content": json.dumps({"error": f"Error procesando payload: {str(pe)}"})
+            }, memory
 
-        # Inyectar database_id por defecto cuando aplique
-        args.setdefault("database_id", self.database_id)
+        # Inyectar database_id por defecto solo para funciones que lo necesitan
+        functions_that_need_database_id = ["get_database_pages", "create_database_page"]
+        if func_key in functions_that_need_database_id:
+            args.setdefault("database_id", self.database_id)
 
         try:
             result = self.sub_tools[func_key](**args)
@@ -332,19 +352,21 @@ class NotionToolbox:
                 "role": "tool",
                 "name": tool_name,
                 "content": json.dumps(result, ensure_ascii=False)
-            }
+            }, memory
         except TypeError as te:
+            error_msg = f"Argumentos inválidos para {tool_name}: {str(te)}"
             return {
                 "role": "tool",
                 "name": tool_name,
-                "content": json.dumps({"error": f"Argumentos inválidos: {te}"})
-            }
+                "content": json.dumps({"error": error_msg})
+            }, memory
         except Exception as e:
+            error_msg = f"Error ejecutando {tool_name}: {str(e)}"
             return {
                 "role": "tool",
                 "name": tool_name,
-                "content": json.dumps({"error": str(e)})
-            }
+                "content": json.dumps({"error": error_msg})
+            }, memory
 
 
 # ===========================

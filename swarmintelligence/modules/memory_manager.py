@@ -31,8 +31,6 @@ class MemoryManager:
         st_history = history[(history["role"] == "system") | (history["cum_tokens"] <= self.memory_threshold)]
         lt_history = history[(history["cum_tokens"] > self.memory_threshold)]
 
-
-
         if len(lt_history) > 0:
             lt_history = self.ec.get_similarity(lt_history, "embedding", query, sort=False)
             lt_history = self.select_top_messages_with_neighbors_optimized(df_result=lt_history, top_n=100, neighbor_window=10)
